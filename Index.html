@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YASIR - Secure RGB Sorter & User Terminal</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Rajdhani', sans-serif; background-color: #0d0f14; }
+        .tech-font { font-family: 'Orbitron', sans-serif; }
+        
+        /* Neon RGB Glow Effects */
+        .rgb-text-glow { text-shadow: 0 0 10px rgba(0, 242, 254, 0.6), 0 0 20px rgba(79, 172, 254, 0.4); }
+        .rgb-border-glow { box-shadow: 0 0 15px rgba(0, 242, 254, 0.25); border-color: rgba(0, 242, 254, 0.4); }
+        .rgb-gradient-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+        }
+        .rgb-gradient-btn:hover {
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.7);
+        }
+        
+        /* Custom Scrollbar for History Panel */
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #090b0f; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #1f2636; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #00f2fe; }
+
+        /* Smooth Animation Gates */
+        @keyframes pulseGlow { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; transform: scale(1.05); } }
+        .welcome-pulse { animation: pulseGlow 2s infinite ease-in-out; }
+    </style>
+</head>
+<body class="text-gray-200 overflow-hidden h-screen w-screen flex relative">
+
+    <div id="screen-welcome" class="absolute inset-0 bg-[#07090e] z-50 flex flex-col items-center justify-center p-4">
+        <div class="text-center space-y-6 max-w-md welcome-pulse">
+            <div class="w-24 h-24 rgb-gradient-btn rounded-3xl flex items-center justify-center text-black font-black text-4xl tech-font mx-auto shadow-2xl">Y</div>
+            <h1 class="text-5xl font-black tracking-widest text-white tech-font rgb-text-glow">WELCOME YASIR</h1>
+            <p class="text-cyan-400 font-bold tracking-widest uppercase text-sm">Initializing Cyber Cryptic Workspace...</p>
+        </div>
+    </div>
+
+    <div id="screen-login" class="hidden absolute inset-0 bg-[#090b10] z-40 flex items-center justify-center p-4">
+        <div class="bg-[#11141d] border border-gray-800 rounded-2xl w-full max-w-md p-8 shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1 rgb-gradient-btn"></div>
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-white tech-font tracking-wider">SECURE AUTHORIZATION</h2>
+                <p class="text-xs text-gray-500 uppercase tracking-widest mt-1">Enter Gatekeeper Credentials</p>
+            </div>
+            
+            <div id="login-error" class="hidden bg-red-950/40 border border-red-500/50 text-red-400 p-3 rounded-xl text-xs font-bold mb-4 text-center">
+                <i class="fa-solid fa-triangle-exclamation mr-1"></i> Invalid Username or Password!
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs font-bold text-gray-400 tracking-wider block mb-1">Username</label>
+                    <div class="relative">
+                        <span class="absolute left-3.5 top-3 text-gray-600"><i class="fa-solid fa-user"></i></span>
+                        <input type="text" id="login-user" placeholder="Enter Username" class="w-full bg-[#161a26] border border-gray-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500 transition">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-400 tracking-wider block mb-1">Password</label>
+                    <div class="relative">
+                        <span class="absolute left-3.5 top-3 text-gray-600"><i class="fa-solid fa-lock"></i></span>
+                        <input type="password" id="login-pass" placeholder="Enter Password" class="w-full bg-[#161a26] border border-gray-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500 transition">
+                    </div>
+                </div>
+                <button onclick="attemptLogin()" class="w-full rgb-gradient-btn text-black font-black py-3 rounded-xl shadow text-xs uppercase tracking-widest transition cursor-pointer mt-2">
+                    Verify Identity <i class="fa-solid fa-shield-halved ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <aside class="w-64 bg-[#11141d] border-r border-gray-800 flex flex-col justify-between p-4 shrink-0 shadow-xl">
+        <div>
+            <div class="flex items-center gap-3 px-2 py-3 mb-8 border-b border-gray-800 pb-5">
+                <div class="w-10 h-10 rgb-gradient-btn rounded-xl flex items-center justify-center text-black font-black text-xl tech-font shadow-lg">Y</div>
+                <div class="flex flex-col">
+                    <span class="font-bold text-2xl tracking-wider text-white tech-font rgb-text-glow">YASIR</span>
+                    <span class="text-[10px] text-cyan-400 font-bold tracking-widest uppercase">Sorter Platform</span>
+                </div>
+            </div>
+            
+            <nav class="space-y-1.5" id="main-nav">
+                <button onclick="switchTab('dashboard', this)" class="w-full flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-lg text-sm font-semibold transition tracking-wide cursor-pointer">
+                    <i class="fa-solid fa-chart-pie w-5 text-cyan-500"></i> Dashboard Summary
+                </button>
+                <button onclick="switchTab('login-manager', this)" class="w-full flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-lg text-sm font-semibold transition tracking-wide cursor-pointer">
+                    <i class="fa-solid fa-user-gear w-5 text-purple-500"></i> Login Manager
+                </button>
+                <button onclick="switchTab('analytics', this)" class="w-full flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-lg text-sm font-semibold transition tracking-wide cursor-pointer">
+                    <i class="fa-solid fa-satellite-dish w-5 text-emerald-500"></i> Performance Analytics
+                </button>
+                <button onclick="switchTab('pulse', this)" class="w-full flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-lg text-sm font-semibold transition tracking-wide cursor-pointer">
+                    <i class="fa-solid fa-bolt w-5 text-amber-500"></i> PULSE Secure Entry
+                </button>
+                <button onclick="switchTab('sorter', this)" id="default-tab" class="w-full flex items-center gap-3 px-4 py-2.5 text-white bg-[#1a2333] border border-cyan-500/30 rounded-lg text-sm font-bold shadow-md tracking-wide cursor-pointer">
+                    <i class="fa-solid fa-folder-tree w-5 text-cyan-400"></i> Smart Image Sorter
+                </button>
+            </nav>
+        </div>
+
+        <button onclick="triggerLogout()" class="flex items-center gap-3 px-4 py-2.5 text-red-400 hover:text-red-300 hover:bg-red-950/20 rounded-lg text-sm font-bold transition tracking-wide cursor-pointer">
+            <i class="fa-solid fa-power-off"></i> Safe Terminal Exit
+        </button>
+    </aside>
+
+    <main class="flex-1 flex flex-col overflow-hidden relative bg-[#090b0f]">
+        <header class="h-16 bg-[#11141d] border-b border-gray-800 flex items-center justify-between px-6 shrink-0 z-10">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-microchip text-cyan-400 text-lg"></i>
+                <h1 class="font-bold text-xl text-white tracking-wide tech-font" id="panel-title">Smart Image Sorter</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-xs bg-[#161a26] px-3 py-1.5 rounded-lg border border-gray-800 text-gray-400 font-medium tracking-wider tech-font">
+                    OPERATOR: <span id="current-session-user" class="font-bold text-purple-400">Yasir</span>
+                </div>
+                <div class="text-xs bg-[#161a26] px-4 py-1.5 rounded-lg border border-gray-800 text-gray-400 font-medium tracking-wider tech-font">
+                    PROCESSED: <span id="moved-count" class="font-bold text-cyan-400">0</span> &nbsp;|&nbsp; TOTAL MATRIX: <span id="total-count" class="font-bold text-purple-400">0</span>
+                </div>
+                <button onclick="openModal()" class="rgb-gradient-btn text-black text-xs font-bold px-4 py-2 rounded-lg shadow transition flex items-center gap-2 cursor-pointer uppercase tracking-wider">
+                    <i class="fa-solid fa-sliders"></i> <span>Workspace Settings</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-hidden p-6 relative">
+            
+            <div id="panel-sorter" class="w-full h-full flex flex-col justify-between">
+                <div id="state-setup" class="w-full h-full flex flex-col items-center justify-center">
+                    <div class="bg-[#11141d] border border-gray-800 shadow-2xl rounded-2xl p-12 text-center max-w-md w-full flex flex-col items-center relative overflow-hidden">
+                        <div class="absolute top-0 left-0 right-0 h-1 rgb-gradient-btn"></div>
+                        <div class="w-20 h-20 bg-cyan-950/40 border border-cyan-500/30 rounded-full flex items-center justify-center mb-6 shadow-inner"><i class="fa-solid fa-folder-open text-cyan-400 text-3xl"></i></div>
+                        <h2 class="text-2xl font-bold text-white mb-2 tech-font">Initialize Directory Matrix</h2>
+                        <p class="text-sm text-gray-400 mb-6 px-4">Link your machine's system storage path channels to extract data.</p>
+                        <button onclick="openModal()" class="w-full rgb-gradient-btn text-black font-bold py-3 rounded-xl shadow transition flex items-center justify-center gap-2 cursor-pointer uppercase tracking-widest text-xs">
+                            <i class="fa-solid fa-bolt"></i> Configure Folders
+                        </button>
+                    </div>
+                </div>
+
+                <div id="state-viewer" class="hidden w-full h-full flex gap-6">
+                    <div class="flex-1 bg-[#11141d] border border-gray-800 rounded-2xl shadow-xl flex flex-col overflow-hidden relative">
+                        <div class="h-11 border-b border-gray-800 px-4 flex items-center justify-between bg-[#151924] shrink-0">
+                            <span class="px-3 py-1 bg-cyan-950 text-cyan-400 border border-cyan-500/30 rounded text-xs font-bold tracking-wider uppercase tech-font">System Viewport</span>
+                            <span class="text-xs text-gray-500" id="file-name-display">No file online</span>
+                        </div>
+                        
+                        <div class="flex-1 relative bg-[#090b0f] flex items-center justify-center p-2 overflow-hidden shadow-inner">
+                            <button onclick="navigateImage(-1)" class="absolute left-4 z-10 w-11 h-11 bg-[#161a26]/80 hover:bg-[#1f2636] border border-gray-800 rounded-full flex items-center justify-center text-cyan-400 hover:text-white shadow-lg transition cursor-pointer"><i class="fa-solid fa-chevron-left text-lg"></i></button>
+                            
+                            <div class="w-full h-full flex items-center justify-center transition-transform duration-200" id="image-frame" style="transform: scale(1) rotate(0deg);">
+                                <img src="" alt="YASIR Core Matrix Screen" class="object-contain max-w-full max-h-[76vh] hidden rounded-xl border border-gray-800 shadow-2xl transition-all" id="target-img">
+                                <div id="no-img-placeholder" class="text-gray-600 font-bold tracking-widest uppercase text-sm tech-font">Matrix Frame Empty</div>
+                            </div>
+                            
+                            <button onclick="navigateImage(1)" class="absolute right-4 z-10 w-11 h-11 bg-[#161a26]/80 hover:bg-[#1f2636] border border-gray-800 rounded-full flex items-center justify-center text-cyan-400 hover:text-white shadow-lg transition cursor-pointer"><i class="fa-solid fa-chevron-right text-lg"></i></button>
+                            
+                            <div class="absolute bottom-4 bg-[#11141d]/90 backdrop-blur-md px-5 py-2 rounded-xl shadow-2xl border border-gray-800 flex items-center gap-5 text-xs text-gray-400 font-semibold z-10">
+                                <button onclick="zoom(-25)" class="hover:text-cyan-400 transition cursor-pointer"><i class="fa-solid fa-search-minus text-base"></i></button>
+                                <span id="zoom-text" class="tech-font text-cyan-400 text-[11px]">100%</span>
+                                <button onclick="zoom(25)" class="hover:text-cyan-400 transition cursor-pointer"><i class="fa-solid fa-search-plus text-base"></i></button>
+                                <div class="w-[1px] h-5 bg-gray-800"></div>
+                                <button onclick="rotate(-90)" class="hover:text-cyan-400 transition cursor-pointer"><i class="fa-solid fa-rotate-left text-base"></i></button>
+                                <button onclick="rotate(90)" class="hover:text-cyan-400 transition cursor-pointer"><i class="fa-solid fa-rotate-right text-base"></i></button>
+                            </div>
+                        </div>
+                        <div class="h-8 bg-[#151924] border-t border-gray-800 px-4 flex items-center justify-end text-[11px] text-gray-400 font-bold tracking-wider tech-font shrink-0" id="progress-text">IMAGE 0 / 0</div>
+                    </div>
+
+                    <div class="w-80 flex flex-col gap-4 shrink-0">
+                        <div class="bg-[#11141d] border border-gray-800 rounded-2xl p-4 shadow-xl relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-cyan-500"></div>
+                            <label class="text-xs font-bold text-cyan-400 tracking-widest uppercase block mb-2 tech-font">Target Sub-Folder Hub</label>
+                            
+                            <div class="flex items-center gap-2 mb-3">
+                                <input type="text" id="dest-folder-input" placeholder="Enter Folder Name (Ex: 101,102)" class="flex-1 bg-[#161a26] border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500 transition" onkeypress="handleKeyPress(event)">
+                                <button onclick="toggleVoiceRecognition()" id="voice-mic-btn" class="bg-gray-800 hover:bg-gray-700 text-cyan-400 border border-gray-700 p-2.5 rounded-xl transition cursor-pointer" title="Listen Voice Command">
+                                    <i class="fa-solid fa-microphone" id="mic-icon"></i>
+                                </button>
+                            </div>
+
+                            <button onclick="moveCurrentFile()" class="w-full rgb-gradient-btn text-black text-xs font-black py-2.5 rounded-xl shadow flex items-center justify-center gap-2 tracking-widest uppercase transition cursor-pointer mb-2">Process & Sort File <i class="fa-solid fa-arrow-right"></i></button>
+                            
+                            <button onclick="triggerUndoAction()" id="undo-action-btn" class="w-full bg-amber-600 hover:bg-amber-700 text-white text-xs font-black py-2.5 rounded-xl shadow flex items-center justify-center gap-2 tracking-widest uppercase transition cursor-pointer">Undo Last Move <i class="fa-solid fa-rotate-left"></i></button>
+                        </div>
+                        
+                        <div class="bg-[#11141d] border border-gray-800 rounded-2xl p-4 shadow-xl flex-1 flex flex-col justify-between overflow-hidden">
+                            <div class="flex flex-col h-full overflow-hidden">
+                                <div class="flex justify-between items-center text-[11px] font-bold text-gray-400 mb-2 border-b border-gray-800 pb-2 tech-font">
+                                    <span class="tracking-widest uppercase text-cyan-400"><i class="fa-solid fa-clock-rotate-left mr-1"></i> LIVE PROCESS HISTORY</span>
+                                    <span id="progress-percent" class="text-cyan-400">0%</span>
+                                </div>
+                                <div class="w-full bg-[#090b0f] h-1.5 rounded-full overflow-hidden border border-gray-800 shadow-inner mb-3"><div id="progress-bar" class="rgb-gradient-btn h-full w-[0%] transition-all duration-300"></div></div>
+                                
+                                <div id="history-container" class="flex-1 overflow-y-auto custom-scroll space-y-2 pr-1 text-[11px] font-mono">
+                                    <div class="text-gray-600 text-center py-8">No data logs recorded yet.</div>
+                                </div>
+                            </div>
+
+                            <div class="bg-[#161a26]/60 border border-gray-800/60 rounded-xl p-3 text-[12px] text-gray-400 space-y-1.5 mt-3 leading-relaxed">
+                                <span class="font-bold text-white block mb-0.5 tech-font text-[10px] tracking-wider text-cyan-400">YASIR INTERACTIVE TERMINAL</span>
+                                <p>• Multiple folders ke liye comma (,) use karein.</p>
+                                <p>• Keyboard se <span class="bg-[#242b3d] px-1.5 border border-gray-700 text-white rounded font-mono text-[11px]">Enter</span> press karke save karein.</p>
+                                <p id="voice-status-label" class="text-amber-400 font-semibold">• Mic Status: Standby.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="panel-login-manager" class="hidden w-full h-full grid grid-cols-1 lg:grid-cols-3 gap-6 overflow-y-auto">
+                <div class="bg-[#11141d] border border-gray-800 rounded-2xl p-5 shadow-xl h-fit space-y-4">
+                    <h2 class="text-md font-bold text-white tech-font border-b border-gray-800 pb-2 text-cyan-400"><i class="fa-solid fa-user-plus mr-1"></i> Register New User</h2>
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 block mb-1">New Username</label>
+                        <input type="text" id="new-username" placeholder="e.g. Asif786" class="w-full bg-[#161a26] border border-gray-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-purple-500">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 block mb-1">Secure Password</label>
+                        <input type="text" id="new-password" placeholder="e.g. pass123" class="w-full bg-[#161a26] border border-gray-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-purple-500">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 block mb-1">License Duration Time</label>
+                        <select id="new-duration" class="w-full bg-[#161a26] border border-gray-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-purple-500 cursor-pointer">
+                            <option value="1">1 Month Plan</option>
+                            <option value="3">3 Months Plan</option>
+                            <option value="6">6 Months Plan</option>
+                            <option value="12">12 Months (Full Year)</option>
+                        </select>
+                    </div>
+                    <button onclick="createUser()" class="w-full bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold py-2.5 rounded-xl tracking-widest uppercase transition cursor-pointer">Generate Active Node</button>
+                </div>
+                
+                <div class="bg-[#11141d] border border-gray-800 rounded-2xl p-5 shadow-xl lg:col-span-2 flex flex-col overflow-hidden">
+                    <h2 class="text-md font-bold text-white tech-font border-b border-gray-800 pb-2 mb-4 text-purple-400"><i class="fa-solid fa-users-viewfinder mr-1"></i> Global Active Users Registry</h2>
+                    <div class="flex-1 overflow-auto rounded-xl border border-gray-800 bg-[#090b0f]">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-[#161a26] border-b border-gray-800 text-gray-400 font-bold uppercase tracking-wider">
+                                    <th class="p-3">Username</th>
+                                    <th class="p-3">Password</th>
+                                    <th class="p-3">Time Allocated</th>
+                                    <th class="p-3 text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="user-table-body" class="divide-y divide-gray-800 font-mono text-gray-300">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="panel-dashboard" class="hidden w-full h-full grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-[#11141d] border border-gray-800 p-6 rounded-2xl relative overflow-hidden shadow-xl"><h3 class="text-gray-400 text-xs font-bold uppercase tracking-wider tech-font">Total Connected Nodes</h3><p class="text-4xl font-bold text-white mt-2 tech-font rgb-text-glow">24 / 24</p></div>
+                <div class="bg-[#11141d] border border-gray-800 p-6 rounded-2xl relative overflow-hidden shadow-xl"><h3 class="text-gray-400 text-xs font-bold uppercase tracking-wider tech-font">Sorting Throttle Speed</h3><p class="text-4xl font-bold text-white mt-2 tech-font">0.42 <span class="text-lg text-gray-500">sec</span></p></div>
+                <div class="bg-[#11141d] border border-gray-800 p-6 rounded-2xl relative overflow-hidden shadow-xl"><h3 class="text-gray-400 text-xs font-bold uppercase tracking-wider tech-font">Data Storage Matrix</h3><p class="text-4xl font-bold text-white mt-2 tech-font" id="dash-total-files">0 Files</p></div>
+            </div>
+
+            <div id="panel-analytics" class="hidden w-full h-full bg-[#11141d] border border-gray-800 rounded-2xl p-6 shadow-xl">
+                <h2 class="text-lg font-bold text-white tech-font mb-4">Live Analytics Logs</h2>
+                <div class="h-64 border border-dashed border-gray-800 rounded-xl flex items-center justify-center text-gray-600 bg-[#090b0f] p-4 text-center">Awaiting matrix input streams...</div>
+            </div>
+
+            <div id="panel-pulse" class="hidden w-full h-full max-w-md mx-auto text-center bg-[#11141d] border border-gray-800 rounded-2xl p-8 shadow-2xl">
+                <div class="w-16 h-16 bg-amber-950/40 border border-amber-500/30 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse"><i class="fa-solid fa-key text-amber-400 text-xl"></i></div>
+                <h2 class="text-xl font-bold text-white tech-font mb-2">PULSE System Link</h2>
+                <button onclick="alert('Handshake complete.')" class="w-full py-2.5 bg-amber-500 text-black text-xs font-bold tracking-widest uppercase rounded-xl cursor-pointer">Establish Server Link</button>
+            </div>
+
+        </div>
+    </main>
+
+    <div id="setup-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-[#11141d] border border-gray-800 w-full max-w-lg rounded-2xl shadow-2xl p-6 space-y-5 relative">
+            <div class="absolute top-0 left-0 right-0 h-1 rgb-gradient-btn"></div>
+            <h3 class="text-lg font-bold text-white tech-font tracking-wide">YASIR Engine Hub Settings</h3>
+            <div>
+                <label class="text-xs font-semibold text-cyan-400 block mb-1.5 tracking-wider uppercase">1. Raw Feed Input Folder (Source)</label>
+                <button onclick="selectFolder('source')" id="src-btn" class="w-full border border-dashed border-cyan-500/30 bg-[#161a26] py-3 px-4 rounded-xl flex items-center justify-between text-left text-sm text-cyan-400 transition cursor-pointer">
+                    <span class="flex items-center gap-2"><i class="fa-regular fa-folder-open text-base"></i> <span id="src-status">Mount Source Drive Pipeline</span></span>
+                </button>
+            </div>
+            <div>
+                <label class="text-xs font-semibold text-purple-400 block mb-1.5 tracking-wider uppercase">2. Storage Discharge Folder (Main Output)</label>
+                <button onclick="selectFolder('dest')" id="dest-btn" class="w-full border border-dashed border-purple-500/30 bg-[#161a26] py-3 px-4 rounded-xl flex items-center justify-between text-left text-sm text-purple-400 transition cursor-pointer">
+                    <span class="flex items-center gap-2"><i class="fa-regular fa-folder text-base"></i> <span id="dest-status">Mount Output Destination Hub</span></span>
+                </button>
+            </div>
+            <div class="flex justify-end gap-2 pt-2 border-t border-gray-800">
+                <button onclick="closeModal()" class="px-4 py-2 bg-gray-800 text-white rounded-xl text-xs font-bold transition cursor-pointer">Abort</button>
+                <button onclick="startSortingSession()" id="start-btn" disabled class="px-4 py-2 bg-gray-900 text-gray-600 rounded-xl text-xs font-bold cursor-not-allowed tech-font border border-gray-800">Execute Engine Matrix</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Temporary database inside browser's localstorage memory
+        let usersDB = JSON.parse(localStorage.getItem('yasir_users_matrix')) || [
+            {username: "Yasir123", password: "Yasir123", months: "Unlimited Master"}
+        ];
+
+        let sourceHandle = null, destHandle = null, imageFiles = [], currentIndex = 0, movedCount = 0, currentZoom = 100, currentRotation = 0;
+        let processHistory = [];
+        let undoStack = []; // System stack for storing undo metrics
+        let recognition = null;
+        let isListening = false;
+
+        // On boot startup layout trigger
+        window.addEventListener('DOMContentLoaded', () => {
+            initVoiceRecognitionEngine();
+            checkSessionPersistence();
+            saveAndRefreshUsersTable();
+        });
+
+        // 24 Hours Session Lock Check
+        function checkSessionPersistence() {
+            const savedSession = JSON.parse(localStorage.getItem('yasir_active_session'));
+            const currentTime = new Date().getTime();
+
+            if (savedSession && (currentTime - savedSession.timestamp < 24 * 60 * 60 * 1000)) {
+                // Keep logged in directly
+                document.getElementById('screen-welcome').classList.add('hidden');
+                document.getElementById('screen-login').classList.add('hidden');
+                document.getElementById('current-session-user').innerText = savedSession.username;
+                triggerWelcomeVoice();
+            } else {
+                localStorage.removeItem('yasir_active_session');
+                setTimeout(() => {
+                    document.getElementById('screen-welcome').classList.add('hidden');
+                    document.getElementById('screen-login').classList.remove('hidden');
+                }, 3000);
+            }
+        }
+
+        // Voice Engine Initialization
+        function triggerWelcomeVoice() {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance("Welcome Yasir");
+                utterance.rate = 1.0;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function initVoiceRecognitionEngine() {
+            window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (window.SpeechRecognition) {
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+
+                recognition.onresult = function(event) {
+                    const resultIndex = event.results.length - 1;
+                    const voiceText = event.results[resultIndex][0].transcript.toLowerCase().trim();
+                    parseVoiceCommand(voiceText);
+                };
+
+                recognition.onerror = function() {
+                    document.getElementById('voice-status-label').innerText = "• Mic Error. Reconnecting...";
+                };
+
+                recognition.onend = function() {
+                    if (isListening) recognition.start(); // Auto-loop restart
+                };
+            } else {
+                document.getElementById('voice-status-label').innerText = "• Mic Error: Speech engine unsupported.";
+            }
+        }
+
+        function toggleVoiceRecognition() {
+            if (!recognition) return alert("Speech Recognition not supported in this browser.");
+            const micBtn = document.getElementById('voice-mic-btn');
+            const micIcon = document.getElementById('mic-icon');
+            const statusLabel = document.getElementById('voice-status-label');
+
+            if (!isListening) {
+                isListening = true;
+                recognition.start();
+                micBtn.className = "bg-red-600 hover:bg-red-700 text-white border border-red-500 p-2.5 rounded-xl transition cursor-pointer animate-pulse";
+                statusLabel.innerText = "• Mic Status: Listening...";
+            } else {
+                isListening = false;
+                recognition.stop();
+                micBtn.className = "bg-gray-800 hover:bg-gray-700 text-cyan-400 border border-gray-700 p-2.5 rounded-xl transition cursor-pointer";
+                statusLabel.innerText = "• Mic Status: Standby.";
+            }
+        }
+
+        function parseVoiceCommand(text) {
+            // Words mapping dictionary for strict parsing
+            const wordToNumMap = {
+                'zero': '0', 'one': '1', 'two': '2', 'three': '3', 'four': '4',
+                'five': '5', 'six': '6', 'seven': '7', 'eight': '8', 'nine': '9',
+                'comma': ',', 'como': ','
+            };
+
+            let tokens = text.split(/\s+/);
+            let convertedStr = "";
+            let triggerNext = false;
+
+            for (let token of tokens) {
+                if (token === 'next') {
+                    triggerNext = true;
+                    continue;
+                }
+                if (wordToNumMap[token] !== undefined) {
+                    convertedStr += wordToNumMap[token];
+                } else if (!isNaN(token)) {
+                    convertedStr += token;
+                } else if (token.includes(',')) {
+                    convertedStr += ",";
+                }
+            }
+
+            if (convertedStr) {
+                // Append or set values dynamically inside input box
+                document.getElementById('dest-folder-input').value = convertedStr;
+                if (triggerNext) {
+                    moveCurrentFile();
+                }
+            }
+        }
+
+        // Authorization Gateway System logic
+        function attemptLogin() {
+            const u = document.getElementById('login-user').value.trim();
+            const p = document.getElementById('login-pass').value.trim();
+            const errBox = document.getElementById('login-error');
+
+            const verifiedUser = usersDB.find(user => user.username === u && user.password === p);
+
+            if (verifiedUser) {
+                errBox.classList.add('hidden');
+                document.getElementById('screen-login').classList.add('hidden');
+                document.getElementById('current-session-user').innerText = verifiedUser.username;
+                
+                // Store persistent session with timestamp
+                const sessionObject = { username: verifiedUser.username, timestamp: new Date().getTime() };
+                localStorage.setItem('yasir_active_session', JSON.stringify(sessionObject));
+
+                document.getElementById('login-user').value = "";
+                document.getElementById('login-pass').value = "";
+                
+                triggerWelcomeVoice();
+            } else {
+                errBox.classList.remove('hidden');
+            }
+        }
+
+        function triggerLogout() {
+            localStorage.removeItem('yasir_active_session');
+            document.getElementById('screen-login').classList.remove('hidden');
+        }
+
+        // Advance Mode: Create dynamic user nodes
+        function createUser() {
+            const uInput = document.getElementById('new-username');
+            const pInput = document.getElementById('new-password');
+            const dSelect = document.getElementById('new-duration');
+
+            const u = uInput.value.trim();
+            const p = pInput.value.trim();
+            const m = dSelect.value;
+
+            if(!u || !p) return alert("Kindly write Username and Password both fields!");
+
+            if(usersDB.some(user => user.username.toLowerCase() === u.toLowerCase())) {
+                return alert("This username already exists inside core database!");
+            }
+
+            usersDB.push({ username: u, password: p, months: `${m} Month(s)` });
+            uInput.value = ""; pInput.value = "";
+            
+            saveAndRefreshUsersTable();
+            alert(`User Node [${u}] initialized successfully for ${m} months!`);
+        }
+
+        function deleteUser(index) {
+            if(index === 0) return alert("System block: Master admin account cannot be erased from database core!");
+            if(confirm(`Are you sure to erase user [${usersDB[index].username}] completely?`)) {
+                usersDB.splice(index, 1);
+                saveAndRefreshUsersTable();
+            }
+        }
+
+        function saveAndRefreshUsersTable() {
+            localStorage.setItem('yasir_users_matrix', JSON.stringify(usersDB));
+            const tbody = document.getElementById('user-table-body');
+            tbody.innerHTML = "";
+
+            usersDB.forEach((user, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-900/40 transition";
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-white">${user.username}</td>
+                    <td class="p-3 text-cyan-500">${user.password}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded bg-purple-950 text-purple-400 border border-purple-800 text-[10px] uppercase font-bold">${user.months}</span></td>
+                    <td class="p-3 text-center">
+                        ${index === 0 ? 
+                        `<span class="text-gray-600 text-[10px] tracking-wider uppercase font-bold"><i class="fa-solid fa-lock"></i> Protected</span>` : 
+                        `<button onclick="deleteUser(${index})" class="px-2 py-1 bg-red-950 hover:bg-red-900 border border-red-800 text-red-400 rounded cursor-pointer transition text-[11px] font-bold"><i class="fa-solid fa-trash-can"></i> Delete</button>`}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function switchTab(tabId, element) {
+            document.getElementById('panel-sorter').classList.add('hidden');
+            document.getElementById('panel-dashboard').classList.add('hidden');
+            document.getElementById('panel-login-manager').classList.add('hidden');
+            document.getElementById('panel-analytics').classList.add('hidden');
+            document.getElementById('panel-pulse').classList.add('hidden');
+            
+            const navButtons = document.querySelectorAll('#main-nav button');
+            navButtons.forEach(btn => btn.className = "w-full flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-lg text-sm font-semibold transition tracking-wide cursor-pointer");
+
+            document.getElementById(`panel-${tabId}`).classList.remove('hidden');
+            
+            let titleText = "Smart Image Sorter";
+            if(tabId==='dashboard') titleText = "Dashboard Terminal Metrics";
+            if(tabId==='login-manager') titleText = "Security Login Manager";
+            if(tabId==='analytics') titleText = "System Analytics Logs";
+            if(tabId==='pulse') titleText = "PULSE Network Stream";
+            document.getElementById('panel-title').innerText = titleText;
+
+            element.className = "w-full flex items-center gap-3 px-4 py-2.5 text-white bg-[#1a2333] border border-cyan-500/40 rounded-lg text-sm font-bold shadow-md tracking-wide cursor-pointer rgb-border-glow";
+        }
+
+        function openModal() { document.getElementById('setup-modal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('setup-modal').classList.add('hidden'); }
+
+        async function selectFolder(type) {
+            try {
+                const handle = await window.showDirectoryPicker();
+                if (type === 'source') {
+                    sourceHandle = handle;
+                    document.getElementById('src-status').innerText = `Matrix Link: ${handle.name}`;
+                    document.getElementById('src-btn').className = "w-full border-2 border-cyan-400 bg-cyan-950/20 py-3 px-4 rounded-xl flex items-center justify-between text-left text-sm text-cyan-400 font-bold rgb-border-glow cursor-pointer";
+                } else {
+                    destHandle = handle;
+                    document.getElementById('dest-status').innerText = `Matrix Link: ${handle.name}`;
+                    document.getElementById('dest-btn').className = "w-full border-2 border-purple-400 bg-purple-950/20 py-3 px-4 rounded-xl flex items-center justify-between text-left text-sm text-purple-400 font-bold cursor-pointer";
+                }
+                if (sourceHandle && destHandle) {
+                    const btn = document.getElementById('start-btn');
+                    btn.removeAttribute('disabled');
+                    btn.className = "px-5 py-2 rgb-gradient-btn text-black font-black rounded-xl text-xs cursor-pointer tech-font tracking-wider";
+                    btn.innerText = "Execute Engine Matrix";
+                }
+            } catch (err) { console.warn(err); }
+        }
+
+        async function startSortingSession() {
+            try {
+                imageFiles = [];
+                const options = { mode: 'readwrite' };
+                if ((await sourceHandle.queryPermission(options)) !== 'granted') await sourceHandle.requestPermission(options);
+                if ((await destHandle.queryPermission(options)) !== 'granted') await destHandle.requestPermission(options);
+
+                for await (const entry of sourceHandle.values()) {
+                    if (entry.kind === 'file' && /\.(jpg|jpeg|png|gif|bmp)$/i.test(entry.name)) imageFiles.push(entry);
+                }
+                if (imageFiles.length === 0) return alert("No image format pipelines found inside specific source drive.");
+
+                document.getElementById('total-count').innerText = imageFiles.length;
+                document.getElementById('dash-total-files').innerText = `${imageFiles.length} Target Files`;
+                
+                closeModal();
+                document.getElementById('state-setup').classList.add('hidden');
+                document.getElementById('state-viewer').classList.remove('hidden');
+                currentIndex = 0; displayCurrentFile();
+            } catch (e) { alert("Authorization configuration handshake declined."); }
+        }
+
+        async function displayCurrentFile() {
+            const img = document.getElementById('target-img');
+            const placeholder = document.getElementById('no-img-placeholder');
+            if (currentIndex < imageFiles.length && currentIndex >= 0) {
+                const fileEntry = imageFiles[currentIndex];
+                const file = await fileEntry.getFile();
+                img.src = URL.createObjectURL(file);
+                img.classList.remove('hidden'); placeholder.classList.add('hidden');
+                document.getElementById('file-name-display').innerText = `NODE // ${fileEntry.name}`;
+                document.getElementById('progress-text').innerText = `DATA UNIT ${currentIndex + 1} OF ${imageFiles.length}`;
+                let pct = Math.round((currentIndex / imageFiles.length) * 100);
+                document.getElementById('progress-percent').innerText = `${pct}%`;
+                document.getElementById('progress-bar').style.width = `${pct}%`;
+            } else {
+                img.classList.add('hidden'); placeholder.classList.remove('hidden');
+                placeholder.innerText = "Array streams processed fully.";
+            }
+            currentZoom = 100; currentRotation = 0; updateTransform();
+        }
+
+        async function moveCurrentFile() {
+            const rawInput = document.getElementById('dest-folder-input').value.trim();
+            if (!rawInput) return alert("Specify dynamic sub-matrix branch route folder name!");
+            if (currentIndex >= imageFiles.length) return;
+
+            const subFolders = rawInput.split(',').map(name => name.trim()).filter(name => name.length > 0);
+            if (subFolders.length === 0) return alert("Kindly enter valid folder names!");
+
+            try {
+                const currentFileEntry = imageFiles[currentIndex];
+                const file = await currentFileEntry.getFile();
+
+                // Process and copy file to all listed subfolders
+                for (const subFolderName of subFolders) {
+                    const targetSubFolderHandle = await destHandle.getDirectoryHandle(subFolderName, { create: true });
+                    const newFileHandle = await targetSubFolderHandle.getFileHandle(currentFileEntry.name, { create: true });
+                    const writable = await newFileHandle.createWritable();
+                    await writable.write(file);
+                    await writable.close();
+                }
+
+                // Push state context meta into undo memory pipeline
+                undoStack.push({
+                    fileEntry: currentFileEntry,
+                    arrayIndex: currentIndex,
+                    historyObject: { fileName: currentFileEntry.name, folders: subFolders.join(', ') }
+                });
+
+                // Add to History logs
+                const timeString = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+                processHistory.unshift({
+                    fileName: currentFileEntry.name,
+                    folders: subFolders.join(', '),
+                    time: timeString
+                });
+                updateHistoryUI();
+
+                movedCount++; 
+                document.getElementById('moved-count').innerText = movedCount;
+                document.getElementById('dest-folder-input').value = ""; 
+                imageFiles.splice(currentIndex, 1); 
+                displayCurrentFile();
+            } catch (err) { 
+                alert("Write protection blockage alert."); 
+            }
+        }
+
+        // Undo Action Core Logic
+        function triggerUndoAction() {
+            if (undoStack.length === 0) return alert("No operations left to undo!");
+
+            const lastAction = undoStack.pop();
+            
+            // Restore entry back inside system array stream
+            imageFiles.splice(lastAction.arrayIndex, 0, lastAction.fileEntry);
+            
+            // Remove the latest entry from history log array
+            processHistory = processHistory.filter(item => !(item.fileName === lastAction.historyObject.fileName && item.folders === lastAction.historyObject.folders));
+            updateHistoryUI();
+
+            movedCount = Math.max(0, movedCount - 1);
+            document.getElementById('moved-count').innerText = movedCount;
+            
+            currentIndex = lastAction.arrayIndex;
+            displayCurrentFile();
+        }
+
+        function updateHistoryUI() {
+            const container = document.getElementById('history-container');
+            container.innerHTML = "";
+            if (processHistory.length === 0) {
+                container.innerHTML = `<div class="text-gray-600 text-center py-8">No data logs recorded yet.</div>`;
+                return;
+            }
+            processHistory.forEach(item => {
+                const div = document.createElement('div');
+                div.className = "bg-[#161a26] border border-gray-800/80 p-2 rounded-lg space-y-1 relative overflow-hidden";
+                div.innerHTML = `
+                    <div class="flex justify-between items-center text-white font-bold truncate">
+                        <span class="text-[11px] truncate max-w-[180px]" title="${item.fileName}"><i class="fa-regular fa-image text-cyan-400 mr-1"></i>${item.fileName}</span>
+                        <span class="text-[9px] text-gray-500">${item.time}</span>
+                    </div>
+                    <div class="text-[10px] text-gray-400 truncate">
+                        <span class="text-purple-400 font-bold">Folders:</span> [${item.folders}]
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function navigateImage(direction) {
+            currentIndex += direction;
+            if (currentIndex < 0) currentIndex = 0;
+            if (currentIndex >= imageFiles.length) currentIndex = imageFiles.length - 1;
+            displayCurrentFile();
+        }
+        function handleKeyPress(e) { if (e.key === 'Enter') moveCurrentFile(); }
+        function zoom(amount) { currentZoom = Math.max(50, Math.min(300, currentZoom + amount)); updateTransform(); }
+        function rotate(degree) { currentRotation += degree; updateTransform(); }
+        function updateTransform() {
+            document.getElementById('image-frame').style.transform = `scale(${currentZoom/100}) rotate(${currentRotation}deg)`;
+            document.getElementById('zoom-text').innerText = `${currentZoom}%`;
+        }
+    </script>
+</body>
+</html>
