@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YASIR - Secure RGB Sorter & User Terminal Matrix</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Rajdhani', sans-serif; background-color: #0d0f14; transition: background-color 0.3s, color 0.3s; }
+        .tech-font { font-family: 'Orbitron', sans-serif; }
+        
+        /* Neon RGB Glow Effects */
+        .rgb-text-glow { text-shadow: 0 0 10px rgba(0, 242, 254, 0.6), 0 0 20px rgba(79, 172, 254, 0.4); }
+        .rgb-border-glow { box-shadow: 0 0 15px rgba(0, 242, 254, 0.25); border-color: rgba(0, 242, 254, 0.4); }
+        .rgb-gradient-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+        }
+        .rgb-gradient-btn:hover {
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.7);
+        }
+        
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #090b0f; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #1f2636; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #00f2fe; }
+
+        @keyframes pulseGlow { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; transform: scale(1.05); } }
+        .welcome-pulse { animation: pulseGlow 2s infinite ease-in-out; }
+
+        /* Dynamic Theme Engines Classes */
+        body.theme-light { background-color: #f3f4f6; color: #111827; }
+        body.theme-light aside { background-color: #ffffff; border-right: 1px solid #d1d5db; }
+        body.theme-light main { background-color: #f9fafb; }
+        body.theme-light header { background-color: #ffffff; border-bottom: 1px solid #d1d5db; }
+        body.theme-light .bg-panel { background-color: #ffffff !important; border: 1px solid #d1d5db !important; color: #111827 !important; }
+        body.theme-light .text-white { color: #1f2937 !important; }
+        body.theme-light .bg-input { background-color: #f9fafb !important; border: 1px solid #cbd5e1 !important; color: #0f172a !important; }
+        body.theme-light tr { border-bottom: 1px solid #e2e8f0; }
+        body.theme-light th { background-color: #e2e8f0 !important; color: #475569 !important; }
+        body.theme-light .tech-font { color: #0f172a !important; }
+
+        body.theme-cyber { background-color: #05050a; color: #00ffcc; }
+        body.theme-cyber aside { background-color: #0b0b16; border-right: 1px solid #ff007f; }
+        body.theme-cyber header { background-color: #0b0b16; border-bottom: 1px solid #ff007f; }
+        body.theme-cyber .bg-panel { background-color: #0d0d1f !important; border: 1px solid #ff007f !important; color: #00ffcc !important; }
+        body.theme-cyber .rgb-border-glow { box-shadow: 0 0 20px #ff007f; border-color: #ff007f; }
+        body.theme-cyber .rgb-text-glow { text-shadow: 0 0 12px #ff007f; color: #ff007f !important; }
+        body.theme-cyber .bg-input { background-color: #12122c !important; border: 1px solid #00ffcc !important; color: #00ffcc !important; }
+    </style>
+</head>
+<body class="text-gray-200 overflow-hidden h-screen w-screen flex relative">
+
+    <div id="screen-welcome" class="absolute inset-0 bg-[#07090e] z-50 flex flex-col items-center justify-center p-4">
+        <div class="text-center space-y-6 max-w-md welcome-pulse">
+            <div class="w-24 h-24 rgb-gradient-btn rounded-3xl flex items-center justify-center text-black font-black text-4xl tech-font mx-auto shadow-2xl">Y</div>
+            <h1 class="text-5xl font-black tracking-widest text-white tech-font rgb-text-glow">WELCOME YASIR</h1>
+            <p class="text-cyan-400 font-bold tracking-widest uppercase text-sm">Initializing Cyber Cryptic Workspace...</p>
+        </div>
+    </div>
+
+    <div id="screen-locked" class="hidden absolute inset-0 bg-[#06080c]/95 z-50 flex flex-col items-center justify-center p-4">
+        <div class="bg-[#141217] border border-red-500/30 rounded-2xl w-full max-w-lg p-8 shadow-2xl text-center relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-red-500"></div>
+            <div class="w-20 h-20 bg-red-950/40 border border-red-500/40 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fa-solid fa-lock text-red-500 text-3xl animate-bounce"></i>
+            </div>
+            <h1 class="text-3xl font-black text-red-500 tech-font uppercase tracking-wider mb-2">Your Account Locked</h1>
+            <p class="text-gray-300 text-sm mb-6 leading-relaxed">Your subscription timeline has terminated. To restore workspace assets for your operating nodes, contact system administrator.</p>
+            <div class="bg-[#0f0e12] border border-gray-800 rounded-xl p-3 text-xs mb-6 flex justify-between items-center">
+                <span class="text-gray-500 uppercase tracking-widest font-bold">Admin Authority:</span>
+                <span class="text-cyan-400 font-bold tracking-wide tech-font">Yasir Nawaz</span>
+            </div>
+            <button onclick="triggerLogout()" class="w-full bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 rounded-xl transition text-xs uppercase tracking-widest">Return To Authentication</button>
+        </div>
+    </div>
+
+    <div id="screen-login" class="hidden absolute inset-0 bg-[#090b10] z-40 flex items-center justify-center p-4">
+        <div class="bg-[#11141d] border border-gray-800 rounded-2xl w-full max-w-md p-8 shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1 rgb-gradient-btn"></div>
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-white tech-font tracking-wider">SECURE AUTHORIZATION</h2>
+                <p class="text-xs text-gray-500 uppercase tracking-widest mt-1">Enter Gatekeeper Credentials</p>
+            </div>
+            
+            <div id="login-error" class="hidden bg-red-950/40 border border-red-500/50 text-red-400 p-3 rounded-xl text-xs font-bold mb-4 text-center">
+                <i class="fa-solid fa-triangle-exclamation mr-1"></i> Invalid Username or Password!
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs font-bold text-gray-400 tracking-wider block mb-1">Username</label>
+                    <div class="relative">
+                        <span class="absolute left-3.5 top-3 text-gray-600"><i class="fa-solid fa-user"></i></span>
+                        <input type="text" id="login-user" placeholder="Enter Username" onkeydown="handleLoginKeyPress(event)" class="w-full bg-[#161a26] border border-gray-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500 transition">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-400 tracking-wider block mb-1">Password</label>
+                    <div class="relative">
+                        <span class="absolute left-3.5 top-3 text-gray-600"><i class="fa-solid fa-lock"></i></span>
+                        <input type="password" id="login-pass" placeholder="Enter Password" onkeydown="handleLoginKeyPress(event)" class="w-full bg-[#161a26] border border-gray-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500 transition">
+                    </div>
+                </div>
+                <button onclick="attemptLogin()" class="w-full rgb-gradient-btn text-black font-black py-3 rounded-xl shadow text-xs uppercase tracking-widest transition cursor-pointer mt-2">Verify Identity <i class="fa-solid fa-shield-halved ml-1"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <aside class="w-64 bg-[#11141d] border-r border-gray-800 flex flex-col justify-between p-4 shrink-0 shadow-xl">
+        <div class="flex flex-col h-full justify-between">
+            <div>
+                <div class="flex items-center gap-3 px-2 py-3 mb-8 border-b border-gray-800 pb-5">
+                    <div class="w-10 h-10 rgb-gradient-btn rounded-xl flex items-center justify-center text-black font-black text-xl tech-font shadow-lg">Y</div>
+                    <div class="flex flex-col">
+                        <span class="font-bold text-2xl tracking-wider text-white tech-font rgb-text-glow">YASIR</span>
+                        <span class="text-[10px] text-cyan-400 font-bold tracking-widest uppercase">Sorter Platform</span>
+                    </div>
+                </div>
+                
+                <nav class="space-y-1.5" id="main-nav">
+                    <button onclick="switchTab('dashboard', this)" class="w-full flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-lg text-sm font-semibold transition tracking-wide cursor-pointer">
+                        <i class="fa-solid fa-chart-pie w-5 text-cyan-500"></i> Dashboard Summary
+                    </button>
+                    <button id="nav-login-manager" style="display: none !important;" onclick="switchTab('login-manager', this)" class="w-full flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-lg text-sm font-semibold transition tracking-wide cursor-pointer">
+                        <i class="fa-solid fa-user-gear w-5 text-purple-500"></i> Login Manager (Admin)
+                    </button>
+                    <button onclick="switchTab('analytics', this)" class="w-full flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-lg text-sm font-semibold transition tracking-wide cursor-pointer">
+                        <i class="fa-solid fa-satellite-dish w-5 text-emerald-500"></i> Performance Analytics
+                    </button>
+                    <button onclick="switchTab('pulse', this)" class="w-full flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-lg text-sm font-semibold transition tracking-wide cursor-pointer">
+                        <i class="fa-solid fa-bolt w-5 text-amber-500"></i> PULSE Secure Entry
+                    </button>
+                    <button onclick="switchTab('sorter', this)" id="default-tab" class="w-full flex items-center gap-3 px-4 py-2.5 text-white bg-[#1a2333] border border-cyan-500/30 rounded-lg text-sm font-bold shadow-md tracking-wide cursor-pointer">
+                        <i class="fa-solid fa-folder-tree w-5 text-cyan-400"></i> Smart Image Sorter
+                    </button>
+                </nav>
+            </div>
+
+            <div class="pt-4 border-t border-gray-800/60">
+                <button onclick="triggerLogout()" class="w-full flex items-center gap-3 px-4 py-2.5 text-red-400 hover:text-red-300 hover:bg-red-950/20 rounded-lg text-sm font-bold transition tracking-wide cursor-pointer">
+                    <i class="fa-solid fa-power-off"></i> Safe Terminal Exit
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col overflow-hidden relative bg-[#090b0f]">
+        <header class="h-16 bg-[#11141d] border-b border-gray-800 flex items-center justify-between px-6 shrink-0 z-10">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-microchip text-cyan-400 text-lg"></i>
+                <h1 class="font-bold text-xl text-white tracking-wide tech-font" id="panel-title">Smart Image Sorter</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-xs bg-[#161a26] px-3 py-1.5 rounded-lg border border-gray-800 text-gray-400 font-medium tracking-wider tech-font bg-panel">
+                    OPERATOR: <span id="current-session-user" class="font-bold text-purple-400">Guest</span>
+                </div>
+                <div class="text-xs bg-[#161a26] px-4 py-1.5 rounded-lg border border-gray-800 text-gray-400 font-medium tracking-wider tech-font bg-panel">
+                    PROCESSED: <span id="moved-count" class="font-bold text-cyan-400">0</span> &nbsp;|&nbsp; TOTAL MATRIX: <span id="total-count" class="font-bold text-purple-400">0</span>
+                </div>
+                <button onclick="openModal()" class="rgb-gradient-btn text-black text-xs font-bold px-4 py-2 rounded-lg shadow transition flex items-center gap-2 cursor-pointer uppercase tracking-wider">
+                    <i class="fa-solid fa-sliders"></i> <span>Workspace Settings</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-hidden p-6 relative">
+            
+            <div id="panel-sorter" class="w-full h-full flex gap-6">
+                <div id="state-setup" class="w-full h-full flex flex-col items-center justify-center absolute inset-0 z-20 bg-[#090b0f]/90">
+                    <div class="bg-[#11141d] border border-gray-800 shadow-2xl rounded-2xl p-12 text-center max-w-md w-full flex flex-col items-center relative overflow-hidden bg-panel">
+                        <div class="absolute top-0 left-0 right-0 h-1 rgb-gradient-btn"></div>
+                        <div class="w-20 h-20 bg-cyan-950/40 border border-cyan-500/30 rounded-full flex items-center justify-center mb-6 shadow-inner"><i class="fa-solid fa-folder-open text-cyan-400 text-3xl"></i></div>
+                        <h2 class="text-2xl font-bold text-white mb-2 tech-font">Initialize Directory Matrix</h2>
+                        <p class="text-sm text-gray-400 mb-6 px-4">Link your machine's system storage path channels to extract data.</p>
+                        <button onclick="openModal()" class="w-full rgb-gradient-btn text-black font-bold py-3 rounded-xl shadow transition flex items-center justify-center gap-2 cursor-pointer uppercase tracking-widest text-xs">
+                            <i class="fa-solid fa-bolt"></i> Configure Folders
+                        </button>
+                    </div>
+                </div>
+
+                <div id="state-viewer" class="w-full h-full flex gap-6 hidden">
+                    <div class="flex-1 bg-[#11141d] border border-gray-800 rounded-2xl shadow-xl flex flex-col overflow-hidden relative bg-panel">
+                        <div class="h-11 border-b border-gray-800 px-4 flex items-center justify-between bg-[#151924] shrink-0">
+                            <span class="px-3 py-1 bg-cyan-950 text-cyan-400 border border-cyan-500/30 rounded text-xs font-bold tracking-wider uppercase tech-font">System Viewport</span>
+                            <span class="text-xs text-gray-500" id="file-name-display">No file online</span>
+                        </div>
+                        
+                        <div class="flex-1 relative bg-[#090b0f] flex items-center justify-center p-2 overflow-hidden shadow-inner">
+                            <button onclick="navigateImage(-1)" class="absolute left-4 z-10 w-11 h-11 bg-[#161a26]/80 hover:bg-[#1f2636] border border-gray-800 rounded-full flex items-center justify-center text-cyan-400 hover:text-white shadow-lg transition cursor-pointer"><i class="fa-solid fa-chevron-left text-lg"></i></button>
+                            
+                            <div class="w-full h-full flex items-center justify-center transition-transform duration-200" id="image-frame" style="transform: scale(1) rotate(0deg);">
+                                <img src="" alt="YASIR Core Matrix Screen" class="object-contain max-w-full max-h-[76vh] hidden rounded-xl border border-gray-800 shadow-2xl transition-all" id="target-img">
+                                <div id="no-img-placeholder" class="text-gray-600 font-bold tracking-widest uppercase text-sm tech-font">Matrix Frame Empty</div>
+                            </div>
+                            
+                            <button onclick="navigateImage(1)" class="absolute right-4 z-10 w-11 h-11 bg-[#161a26]/80 hover:bg-[#1f2636] border border-gray-800 rounded-full flex items-center justify-center text-cyan-400 hover:text-white shadow-lg transition cursor-pointer"><i class="fa-solid fa-chevron-right text-lg"></i></button>
+                            
+                            <div class="absolute bottom-4 bg-[#11141d]/90 backdrop-blur-md px-5 py-2 rounded-xl shadow-2xl border border-gray-800 flex items-center gap-5 text-xs text-gray-400 font-semibold z-10 bg-panel">
+                                <button onclick="zoom(-25)" class="hover:text-cyan-400 transition cursor-pointer"><i class="fa-solid fa-search-minus text-base"></i></button>
+                                <span id="zoom-text" class="tech-font text-cyan-400 text-[11px]">100%</span>
+                                <button onclick="zoom(25)" class="hover:text-cyan-400 transition cursor-pointer"><i class="fa-solid fa-search-plus text-base"></i></button>
+                                <div class="w-[1px] h-5 bg-gray-800"></div>
+                                <button onclick="rotate(-90)" class="hover:text-cyan-400 transition cursor-pointer"><i class="fa-solid fa-rotate-left text-base"></i></button>
+                                <button onclick="rotate(90)" class="hover:text-cyan-400 transition cursor-pointer"><i class="fa-solid fa-rotate-right text-base"></i></button>
+                            </div>
+                        </div>
+                        <div class="h-8 bg-[#151924] border-t border-gray-800 px-4 flex items-center justify-end text-[11px] text-gray-400 font-bold tracking-wider tech-font shrink-0" id="progress-text">IMAGE 0 / 0</div>
+                    </div>
+
+                    <div class="w-80 flex flex-col gap-4 shrink-0 h-full overflow-hidden">
+                        <div class="bg-[#11141d] border border-gray-800 rounded-2xl p-4 shadow-xl relative overflow-hidden shrink-0 bg-panel">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-cyan-500"></div>
+                            <label class="text-xs font-bold text-cyan-400 tracking-widest uppercase block mb-2 tech-font">Target Sub-Folder Hub</label>
+                            
+                            <div class="flex items-center gap-2 mb-3">
+                                <input type="text" id="dest-folder-input" placeholder="Enter Folder Name (Ex: 101,102)" class="flex-1 bg-[#161a26] border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500 transition bg-input" onkeypress="handleKeyPress(event)">
+                                <button onclick="toggleVoiceRecognition()" id="voice-mic-btn" class="bg-gray-800 hover:bg-gray-700 text-cyan-400 border border-gray-700 p-2.5 rounded-xl transition cursor-pointer" title="Listen Voice Command">
+                                    <i class="fa-solid fa-microphone" id="mic-icon"></i>
+                                </button>
+                            </div>
+                            <div id="voice-status-label" class="text-[10px] text-gray-500 font-semibold mb-2 px-1">• Mic Status: Standby.</div>
+
+                            <button onclick="moveCurrentFile()" class="w-full rgb-gradient-btn text-black text-xs font-black py-2.5 rounded-xl shadow flex items-center justify-center gap-2 tracking-widest uppercase transition cursor-pointer mb-2">Process & Sort File <i class="fa-solid fa-arrow-right"></i></button>
+                            <button onclick="triggerUndoAction()" id="undo-action-btn" class="w-full bg-amber-600 hover:bg-amber-700 text-white text-xs font-black py-2.5 rounded-xl shadow flex items-center justify-center gap-2 tracking-widest uppercase transition cursor-pointer">Undo Last Move <i class="fa-solid fa-rotate-left"></i></button>
+                        </div>
+                        
+                        <div class="bg-[#11141d] border border-gray-800 rounded-2xl p-4 shadow-xl flex-1 flex flex-col justify-between overflow-hidden bg-panel">
+                            <div class="flex flex-col h-full overflow-hidden">
+                                <div class="flex justify-between items-center text-[11px] font-bold text-gray-400 mb-2 border-b border-gray-800 pb-2 tech-font">
+                                    <span class="tracking-widest uppercase text-cyan-400"><i class="fa-solid fa-clock-rotate-left mr-1"></i> LIVE PROCESS HISTORY</span>
+                                    <span id="progress-percent" class="text-cyan-400">0%</span>
+                                </div>
+                                <div class="w-full bg-[#090b0f] h-1.5 rounded-full overflow-hidden border border-gray-800 shadow-inner mb-3"><div id="progress-bar" class="rgb-gradient-btn h-full w-[0%] transition-all duration-300"></div></div>
+                                
+                                <div id="history-container" class="flex-1 overflow-y-auto custom-scroll space-y-2 pr-1 text-[11px] font-mono mb-4">
+                                    <div class="text-gray-600 text-center py-8">No data logs recorded yet.</div>
+                                </div>
+
+                                <div class="border border-cyan-500/30 bg-gradient-to-r from-[#161a26] to-[#0f131c] rounded-xl p-3.5 shadow-lg shrink-0 bg-panel mt-auto">
+                                    <div class="flex items-center justify-between mb-2 pb-1.5 border-b border-gray-800">
+                                        <div class="flex items-center gap-1.5">
+                                            <i class="fa-solid fa-terminal text-cyan-400 text-xs animate-pulse"></i>
+                                            <span class="text-[9px] text-gray-400 font-bold tracking-widest uppercase">SYSTEM DEVELOPER CORE</span>
+                                        </div>
+                                        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                                    </div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-xs font-black text-white tech-font tracking-widest rgb-text-glow">MALIK SHBAZ</span>
+                                        <a href="https://wa.me/923224516023" target="_blank" class="flex items-center gap-1 text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-bold hover:bg-emerald-500 hover:text-black transition shadow">
+                                            <i class="fa-brands fa-whatsapp text-xs"></i> WhatsApp Live
+                                        </a>
+                                    </div>
+                                    <p class="text-[11px] text-gray-400 font-medium leading-relaxed text-center">Hum Se Kisi Bi Trha Ki Custom AI, Sorter Platform, Trading Tools Ya Web Game Dashboard Banwane Ke Liye Diye Gaye WhatsApp Pe Rabta Kare.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="panel-login-manager" class="hidden w-full h-full grid grid-cols-1 xl:grid-cols-3 gap-6 overflow-y-auto custom-scroll">
+                <div class="bg-[#11141d] border border-gray-800 rounded-2xl p-5 shadow-xl h-fit space-y-4 bg-panel">
+                    <h2 class="text-md font-bold text-white tech-font border-b border-gray-800 pb-2 text-cyan-400"><i class="fa-solid fa-user-plus mr-1"></i> Register New Node Entry</h2>
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 block mb-1">New Username</label>
+                        <input type="text" id="new-username" placeholder="e.g. Asif786" class="w-full bg-[#161a26] border border-gray-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-purple-500 bg-input">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 block mb-1">Secure Password</label>
+                        <input type="text" id="new-password" placeholder="e.g. pass123" class="w-full bg-[#161a26] border border-gray-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-purple-500 bg-input">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 block mb-1">License Allocation Plan</label>
+                        <select id="new-duration" class="w-full bg-[#161a26] border border-gray-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-purple-500 cursor-pointer bg-input">
+                            <option value="3">3 Days Free Trial</option>
+                            <option value="30">1 Month Plan</option>
+                            <option value="90">3 Months Plan</option>
+                            <option value="365">12 Months Full License</option>
+                        </select>
+                    </div>
+                    <button onclick="createUser()" class="w-full bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold py-2.5 rounded-xl tracking-widest uppercase transition cursor-pointer">Generate Active Node</button>
+                </div>
+                
+                <div class="bg-[#11141d] border border-gray-800 rounded-2xl p-5 shadow-xl xl:col-span-2 flex flex-col overflow-hidden bg-panel">
+                    <h2 class="text-md font-bold text-white tech-font border-b border-gray-800 pb-2 mb-4 text-purple-400 flex justify-between items-center">
+                        <span><i class="fa-solid fa-users-viewfinder mr-1"></i> Global Live Network Pulse Monitor</span>
+                        <span class="text-[10px] bg-purple-950 text-purple-400 border border-purple-800 px-2 py-0.5 rounded uppercase font-mono">Yasir Master Protocol</span>
+                    </h2>
+                    <div class="flex-1 overflow-auto rounded-xl border border-gray-800 bg-[#090b0f]">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-[#161a26] border-b border-gray-800 text-gray-400 font-bold uppercase tracking-wider">
+                                    <th class="p-3">Username</th>
+                                    <th class="p-3">Credentials</th>
+                                    <th class="p-3">Network Pulse</th>
+                                    <th class="p-3">Last Sign-Off Time</th>
+                                    <th class="p-3">Total Runtime</th>
+                                    <th class="p-3">Sorted Files</th>
+                                    <th class="p-3 text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="user-table-body" class="divide-y divide-gray-800 font-mono text-gray-300">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="panel-dashboard" class="hidden w-full h-full grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-[#11141d] border border-gray-800 p-6 rounded-2xl relative overflow-hidden shadow-xl bg-panel"><h3 class="text-gray-400 text-xs font-bold uppercase tracking-wider tech-font">Total Network Nodes</h3><p class="text-4xl font-bold text-white mt-2 tech-font rgb-text-glow" id="dash-online-status">Online</p></div>
+                <div class="bg-[#11141d] border border-gray-800 p-6 rounded-2xl relative overflow-hidden shadow-xl bg-panel"><h3 class="text-gray-400 text-xs font-bold uppercase tracking-wider tech-font">Sorting Throttle Velocity</h3><p class="text-4xl font-bold text-white mt-2 tech-font">0.42 <span class="text-lg text-gray-500">sec</span></p></div>
+                <div class="bg-[#11141d] border border-gray-800 p-6 rounded-2xl relative overflow-hidden shadow-xl bg-panel"><h3 class="text-gray-400 text-xs font-bold uppercase tracking-wider tech-font">Data Storage Matrix</h3><p class="text-4xl font-bold text-white mt-2 tech-font" id="dash-total-files">0 Files Registered</p></div>
+            </div>
+
+            <div id="panel-analytics" class="hidden w-full h-full bg-[#11141d] border border-gray-800 rounded-2xl p-6 shadow-xl overflow-y-auto custom-scroll bg-panel">
+                <h2 class="text-lg font-bold text-white tech-font mb-4 flex items-center gap-2 text-cyan-400"><i class="fa-solid fa-chart-line animate-pulse"></i> Live Performance Dashboard Streams</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-[#090b0f] p-4 rounded-xl border border-gray-800 font-mono">
+                        <div class="text-[10px] text-gray-500 uppercase font-bold">CPU Core Load</div>
+                        <div class="text-xl font-bold text-emerald-400 mt-1" id="stream-cpu">24.5%</div>
+                    </div>
+                    <div class="bg-[#090b0f] p-4 rounded-xl border border-gray-800 font-mono">
+                        <div class="text-[10px] text-gray-500 uppercase font-bold">RAM Allocations</div>
+                        <div class="text-xl font-bold text-cyan-400 mt-1" id="stream-ram">1.84 GB</div>
+                    </div>
+                    <div class="bg-[#090b0f] p-4 rounded-xl border border-gray-800 font-mono">
+                        <div class="text-[10px] text-gray-500 uppercase font-bold">IO Read / Write</div>
+                        <div class="text-xl font-bold text-purple-400 mt-1" id="stream-io">742 KB/s</div>
+                    </div>
+                    <div class="bg-[#090b0f] p-4 rounded-xl border border-gray-800 font-mono">
+                        <div class="text-[10px] text-gray-500 uppercase font-bold">Thread Matrix Pools</div>
+                        <div class="text-xl font-bold text-amber-400 mt-1">12 Active</div>
+                    </div>
+                </div>
+                <div class="h-48 border border-gray-800 rounded-xl relative bg-[#090b0f] p-4 overflow-hidden flex flex-col justify-between">
+                    <span class="text-[10px] text-gray-500 uppercase font-bold tracking-widest block"><i class="fa-solid fa-network-wired"></i> Network Pipeline Activity Visual Stream</span>
+                    <div class="flex items-end gap-1 w-full h-32 pt-4" id="stream-chart-bars">
+                        </div>
+                </div>
+            </div>
+
+            <div id="panel-pulse" class="hidden w-full h-full max-w-md mx-auto text-center bg-[#11141d] border border-gray-800 rounded-2xl p-8 shadow-2xl bg-panel">
+                <div class="w-16 h-16 bg-amber-950/40 border border-amber-500/30 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse"><i class="fa-solid fa-key text-amber-400 text-xl"></i></div>
+                <h2 class="text-xl font-bold text-white tech-font mb-2">PULSE System Link Handshake</h2>
+                <button onclick="alert('Handshake link verified successfully.')" class="w-full py-2.5 bg-amber-500 text-black text-xs font-bold tracking-widest uppercase rounded-xl cursor-pointer">Establish Server Connection Link</button>
+            </div>
+
+        </div>
+    </main>
+
+    <div id="setup-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-[#11141d] border border-gray-800 w-full max-w-lg rounded-2xl shadow-2xl p-6 space-y-5 relative bg-panel">
+            <div class="absolute top-0 left-0 right-0 h-1 rgb-gradient-btn"></div>
+            <h3 class="text-lg font-bold text-white tech-font tracking-wide">YASIR Engine Hub Configuration Workspace</h3>
+            
+            <div>
+                <label class="text-xs font-semibold text-amber-400 block mb-1.5 tracking-wider uppercase"><i class="fa-solid fa-palette mr-1"></i> Toggle Application Layout Theme Mode</label>
+                <select id="theme-selector" onchange="executeSystemThemeToggle(this.value)" class="w-full bg-[#161a26] border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 cursor-pointer bg-input">
+                    <option value="dark">Deep Cyber Dark Mode (Default Theme)</option>
+                    <option value="light">Clean Light Operator Terminal Theme</option>
+                    <option value="cyber">Neon Cyberpunk Radiant Glow Theme</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="text-xs font-semibold text-cyan-400 block mb-1.5 tracking-wider uppercase">1. Raw Feed Input Folder (Source)</label>
+                <button onclick="selectFolder('source')" id="src-btn" class="w-full border border-dashed border-cyan-500/30 bg-[#161a26] py-3 px-4 rounded-xl flex items-center justify-between text-left text-sm text-cyan-400 transition cursor-pointer bg-input">
+                    <span class="flex items-center gap-2"><i class="fa-regular fa-folder-open text-base"></i> <span id="src-status">Mount Source Drive Pipeline Channel</span></span>
+                </button>
+            </div>
+            <div>
+                <label class="text-xs font-semibold text-purple-400 block mb-1.5 tracking-wider uppercase">2. Storage Discharge Folder (Main Output)</label>
+                <button onclick="selectFolder('dest')" id="dest-btn" class="w-full border border-dashed border-purple-500/30 bg-[#161a26] py-3 px-4 rounded-xl flex items-center justify-between text-left text-sm text-purple-400 transition cursor-pointer bg-input">
+                    <span class="flex items-center gap-2"><i class="fa-regular fa-folder text-base"></i> <span id="dest-status">Mount Output Destination Discharge Hub</span></span>
+                </button>
+            </div>
+            <div class="flex justify-end gap-2 pt-2 border-t border-gray-800">
+                <button onclick="closeModal()" class="px-4 py-2 bg-gray-800 text-white rounded-xl text-xs font-bold transition cursor-pointer">Abort Control</button>
+                <button onclick="startSortingSession()" id="start-btn" disabled class="px-4 py-2 bg-gray-900 text-gray-600 rounded-xl text-xs font-bold cursor-not-allowed tech-font border border-gray-800">Execute Engine Matrix</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // System user memory structure model initialization
+        let defaultUsers = [
+            {username: "Yasir123", password: "Yasir123", months: "Unlimited Master", createdTime: new Date(2020, 0, 1).getTime(), isOnline: false, lastOfflineTime: "Never", totalRuntimeMs: 0, fileOperationsCount: 0}
+        ];
+
+        let usersDB = JSON.parse(localStorage.getItem('yasir_users_matrix')) || defaultUsers;
+        
+        // --- USER ISOLATION CORE MEMORY POOLS ---
+        let currentUser = "";
+        let sourceHandle = null, destHandle = null;
+        let imageFiles = []; // Har user ki memory alag load hogi
+        let currentIndex = 0, movedCount = 0;
+        let currentZoom = 100, currentRotation = 0;
+        let processHistory = [];
+        let undoStack = []; 
+        
+        let recognition = null;
+        let isListening = false;
+        let runtimeTrackingInterval = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initVoiceRecognitionEngine();
+            checkSessionPersistence();
+            saveAndRefreshUsersTable();
+            initPerformanceStreamEngine();
+            
+            // Explicit Core Theme Initialization Hook Setup
+            const activeThemeMode = localStorage.getItem('yasir_sys_theme') || 'dark';
+            document.getElementById('theme-selector').value = activeThemeMode;
+            executeSystemThemeToggle(activeThemeMode);
+        });
+
+        // Strict Operational Visual Theme Layout Switch Engine
+        function executeSystemThemeToggle(mode) {
+            document.body.classList.remove('theme-light', 'theme-cyber');
+            if (mode === 'light') {
+                document.body.classList.add('theme-light');
+            } else if (mode === 'cyber') {
+                document.body.classList.add('theme-cyber');
+            }
+            localStorage.setItem('yasir_sys_theme', mode);
+        }
+
+        // Live Performance Streams Analytics Simulation Script Link Hub
+        function initPerformanceStreamEngine() {
+            const chartContainer = document.getElementById('stream-chart-bars');
+            if(chartContainer) {
+                chartContainer.innerHTML = "";
+                for(let i=0; i<32; i++) {
+                    const bar = document.createElement('div');
+                    bar.className = "flex-1 bg-cyan-500/30 border border-cyan-400/20 transition-all duration-300";
+                    bar.style.height = `${Math.floor(Math.random() * 80) + 10}%`;
+                    chartContainer.appendChild(bar);
+                }
+            }
+
+            setInterval(() => {
+                if(!document.getElementById('panel-analytics').classList.contains('hidden')) {
+                    const cpu = (Math.random() * 40 + 10).toFixed(1);
+                    const ram = (Math.random() * 0.5 + 1.5).toFixed(2);
+                    const io = Math.floor(Math.random() * 600 + 200);
+                    
+                    document.getElementById('stream-cpu').innerText = `${cpu}%`;
+                    document.getElementById('stream-ram').innerText = `${ram} GB`;
+                    document.getElementById('stream-io').innerText = `${io} KB/s`;
+
+                    if(chartContainer && chartContainer.children.length > 0) {
+                        const randomBar = chartContainer.children[Math.floor(Math.random() * chartContainer.children.length)];
+                        randomBar.style.height = `${Math.floor(Math.random() * 85) + 5}%`;
+                        if(parseFloat(cpu) > 35) {
+                            randomBar.className = "flex-1 bg-purple-500/50 border border-purple-400/30 transition-all duration-300";
+                        } else {
+                            randomBar.className = "flex-1 bg-cyan-500/30 border border-cyan-400/20 transition-all duration-300";
+                        }
+                    }
+                }
+            }, 1500);
+        }
+
+        function checkSessionPersistence() {
+            const savedSession = JSON.parse(localStorage.getItem('yasir_active_session'));
+            const currentTime = new Date().getTime();
+
+            if (savedSession && (currentTime - savedSession.timestamp < 24 * 60 * 60 * 1000)) {
+                const targetUser = usersDB.find(u => u.username === savedSession.username);
+                if (targetUser && checkTrialExpired(targetUser)) {
+                    showLockScreen();
+                    return;
+                }
+
+                document.getElementById('screen-welcome').classList.add('hidden');
+                document.getElementById('screen-login').classList.add('hidden');
+                document.getElementById('current-session-user').innerText = savedSession.username;
+                
+                currentUser = savedSession.username;
+                loadUserSpecificDataPools(); // Load user isolated assets
+
+                initiateUserPulseSession(savedSession.username);
+                toggleLoginManagerVisibility(savedSession.username);
+                triggerWelcomeVoice();
+            } else {
+                localStorage.removeItem('yasir_active_session');
+                setTimeout(() => {
+                    document.getElementById('screen-welcome').classList.add('hidden');
+                    document.getElementById('screen-login').classList.remove('hidden');
+                }, 2500);
+            }
+        }
+
+        // --- LOAD USER SPECIFIC ISOLATED CORES ---
+        function loadUserSpecificDataPools() {
+            // Reset browser active instances
+            imageFiles = [];
+            currentIndex = 0;
+            movedCount = 0;
+            undoStack = [];
+            sourceHandle = null;
+            destHandle = null;
+
+            // Reset setup screens back to defaults
+            document.getElementById('state-setup').classList.remove('hidden');
+            document.getElementById('state-viewer').classList.add('hidden');
+            document.getElementById('src-status').innerText = "Mount Source Drive Pipeline Channel";
+            document.getElementById('src-btn').className = "w-full border border-dashed border-cyan-500/30 bg-[#161a26] py-3 px-4 rounded-xl flex items-center justify-between text-left text-sm text-cyan-400 transition cursor-pointer bg-input";
+            document.getElementById('dest-status').innerText = "Mount Output Destination Discharge Hub";
+            document.getElementById('dest-btn').className = "w-full border border-dashed border-purple-500/30 bg-[#161a26] py-3 px-4 rounded-xl flex items-center justify-between text-left text-sm text-purple-400 transition cursor-pointer bg-input";
+            
+            const startBtn = document.getElementById('start-btn');
+            startBtn.setAttribute('disabled', 'true');
+            startBtn.className = "px-4 py-2 bg-gray-900 text-gray-600 rounded-xl text-xs font-bold cursor-not-allowed tech-font border border-gray-800";
+
+            // Load Isolated Live History Logs
+            processHistory = JSON.parse(localStorage.getItem(`yasir_history_${currentUser}`)) || [];
+            updateHistoryUI();
+
+            // Clear active viewer displays
+            document.getElementById('target-img').classList.add('hidden');
+            document.getElementById('no-img-placeholder').classList.remove('hidden');
+            document.getElementById('file-name-display').innerText = "No file online";
+            document.getElementById('moved-count').innerText = "0";
+            document.getElementById('total-count').innerText = "0";
+            document.getElementById('progress-text').innerText = "IMAGE 0 / 0";
+            document.getElementById('progress-percent').innerText = "0%";
+            document.getElementById('progress-bar').style.width = "0%";
+        }
+
+        function initiateUserPulseSession(username) {
+            usersDB = usersDB.map(user => {
+                if(user.username === username) {
+                    return { ...user, isOnline: true };
+                }
+                return user;
+            });
+            localStorage.setItem('yasir_users_matrix', JSON.stringify(usersDB));
+            saveAndRefreshUsersTable();
+
+            if(runtimeTrackingInterval) clearInterval(runtimeTrackingInterval);
+            runtimeTrackingInterval = setInterval(() => {
+                usersDB = usersDB.map(user => {
+                    if(user.username === username) {
+                        let currentAccumulatedTime = user.totalRuntimeMs || 0;
+                        return { ...user, totalRuntimeMs: currentAccumulatedTime + 10000 };
+                    }
+                    return user;
+                });
+                localStorage.setItem('yasir_users_matrix', JSON.stringify(usersDB));
+                if(document.getElementById('panel-login-manager').classList.contains('hidden') === false) {
+                    saveAndRefreshUsersTable();
+                }
+            }, 10000);
+        }
+
+        function terminateUserPulseSession(username) {
+            if(runtimeTrackingInterval) clearInterval(runtimeTrackingInterval);
+            const timeString = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+            
+            usersDB = usersDB.map(user => {
+                if(user.username === username) {
+                    return { ...user, isOnline: false, lastOfflineTime: timeString };
+                }
+                return user;
+            });
+            localStorage.setItem('yasir_users_matrix', JSON.stringify(usersDB));
+            saveAndRefreshUsersTable();
+        }
+
+        function toggleLoginManagerVisibility(username) {
+            const loginManagerBtn = document.getElementById('nav-login-manager');
+            if (username === "Yasir123") {
+                loginManagerBtn.setAttribute('style', 'display: flex !important;');
+            } else {
+                loginManagerBtn.setAttribute('style', 'display: none !important;');
+            }
+        }
+
+        function checkTrialExpired(user) {
+            if (user.username === "Yasir123") return false;
+            const currentTime = new Date().getTime();
+            let lifespanDays = 3;
+            if (user.months && user.months.includes("Days Plan")) {
+                lifespanDays = parseInt(user.months) || 3;
+            }
+            return (currentTime - user.createdTime) > (lifespanDays * 24 * 60 * 60 * 1000);
+        }
+
+        function showLockScreen() {
+            document.getElementById('screen-welcome').classList.add('hidden');
+            document.getElementById('screen-login').classList.add('hidden');
+            document.getElementById('screen-locked').classList.remove('hidden');
+        }
+
+        function triggerWelcomeVoice() {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance("Welcome Yasir");
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function initVoiceRecognitionEngine() {
+            window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (window.SpeechRecognition) {
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+
+                recognition.onresult = function(event) {
+                    const resultIndex = event.results.length - 1;
+                    const voiceText = event.results[resultIndex][0].transcript.toLowerCase().trim();
+                    parseVoiceCommand(voiceText);
+                };
+                recognition.onerror = function() {
+                    document.getElementById('voice-status-label').innerText = "• Mic Status: Tracking Error.";
+                };
+                recognition.onend = function() {
+                    if (isListening) recognition.start();
+                };
+            }
+        }
+
+        function toggleVoiceRecognition() {
+            if (!recognition) return alert("Speech Recognition not supported inside current framework engine.");
+            const micBtn = document.getElementById('voice-mic-btn');
+            const micIcon = document.getElementById('mic-icon');
+            const statusLabel = document.getElementById('voice-status-label');
+
+            if (!isListening) {
+                isListening = true;
+                recognition.start();
+                micBtn.className = "bg-red-600 hover:bg-red-700 text-white border border-red-500 p-2.5 rounded-xl transition cursor-pointer animate-pulse";
+                statusLabel.innerText = "• Mic Status: Listening Stream Operations...";
+            } else {
+                isListening = false;
+                recognition.stop();
+                micBtn.className = "bg-gray-800 hover:bg-gray-700 text-cyan-400 border border-gray-700 p-2.5 rounded-xl transition cursor-pointer";
+                statusLabel.innerText = "• Mic Status: Standby Control Channel.";
+            }
+        }
+
+        function parseVoiceCommand(text) {
+            const wordToNumMap = {
+                'zero': '0', 'one': '1', 'two': '2', 'three': '3', 'four': '4',
+                'five': '5', 'six': '6', 'seven': '7', 'eight': '8', 'nine': '9', 'comma': ','
+            };
+            let tokens = text.split(/\s+/);
+            let convertedStr = "";
+            let triggerNext = false;
+
+            for (let token of tokens) {
+                if (token === 'next') { triggerNext = true; continue; }
+                if (wordToNumMap[token] !== undefined) convertedStr += wordToNumMap[token];
+                else if (!isNaN(token)) convertedStr += token;
+            }
+            if (convertedStr) {
+                document.getElementById('dest-folder-input').value = convertedStr;
+                if (triggerNext) moveCurrentFile();
+            }
+        }
+
+        function handleLoginKeyPress(e) { if (e.key === 'Enter') attemptLogin(); }
+
+        function attemptLogin() {
+            const u = document.getElementById('login-user').value.trim();
+            const p = document.getElementById('login-pass').value.trim();
+            const errBox = document.getElementById('login-error');
+
+            const verifiedUser = usersDB.find(user => user.username === u && user.password === p);
+
+            if (verifiedUser) {
+                if (checkTrialExpired(verifiedUser)) {
+                    showLockScreen();
+                    return;
+                }
+                errBox.classList.add('hidden');
+                document.getElementById('screen-login').classList.add('hidden');
+                document.getElementById('current-session-user').innerText = verifiedUser.username;
+                
+                currentUser = verifiedUser.username;
+                
+                const sessionObject = { username: verifiedUser.username, timestamp: new Date().getTime() };
+                localStorage.setItem('yasir_active_session', JSON.stringify(sessionObject));
+
+                loadUserSpecificDataPools(); // Reset/load database components for current unique user node
+
+                initiateUserPulseSession(verifiedUser.username);
+                toggleLoginManagerVisibility(verifiedUser.username);
+
+                document.getElementById('login-user').value = "";
+                document.getElementById('login-pass').value = "";
+                triggerWelcomeVoice();
+            } else {
+                errBox.classList.remove('hidden');
+            }
+        }
+
+        function triggerLogout() {
+            const savedSession = JSON.parse(localStorage.getItem('yasir_active_session'));
+            if(savedSession) {
+                terminateUserPulseSession(savedSession.username);
+            }
+            localStorage.removeItem('yasir_active_session');
+            currentUser = "";
+            document.getElementById('screen-locked').classList.add('hidden');
+            document.getElementById('screen-login').classList.remove('hidden');
+            toggleLoginManagerVisibility("");
+            switchTab('sorter', document.getElementById('default-tab'));
+        }
+
+        function createUser() {
+            const uInput = document.getElementById('new-username');
+            const pInput = document.getElementById('new-password');
+            const dSelect = document.getElementById('new-duration');
+
+            const u = uInput.value.trim();
+            const p = pInput.value.trim();
+            const dValue = dSelect.value;
+
+            if(!u || !p) return alert("Write operational credentials fully inside inputs!");
+            if(usersDB.some(user => user.username.toLowerCase() === u.toLowerCase())) return alert("This profile node label already verified in matrix memory storage!");
+
+            usersDB.push({ 
+                username: u, 
+                password: p, 
+                months: dValue === "3" ? "3 Days Trial" : `${dValue} Days Plan`, 
+                createdTime: new Date().getTime(),
+                isOnline: false,
+                lastOfflineTime: "Never Access",
+                totalRuntimeMs: 0,
+                fileOperationsCount: 0
+            });
+            
+            uInput.value = ""; pInput.value = "";
+            saveAndRefreshUsersTable();
+            alert(`User Node [${u}] integrated into system register!`);
+        }
+
+        function deleteUser(index) {
+            if(index === 0) return alert("System core protection block: Primary administrative master root account can never be cleared.");
+            if(confirm(`Erase structural profile token [${usersDB[index].username}] completely?`)) {
+                // Clear isolated user logs from localstorage before deleting account context link
+                localStorage.removeItem(`yasir_history_${usersDB[index].username}`);
+                usersDB.splice(index, 1);
+                saveAndRefreshUsersTable();
+            }
+        }
+
+        function formatRuntimeDisplay(ms) {
+            if(!ms || ms < 0) return "0 mins";
+            let totalSeconds = Math.floor(ms / 1000);
+            let hours = Math.floor(totalSeconds / 3600);
+            let minutes = Math.floor((totalSeconds % 3600) / 60);
+            
+            if(hours === 0) return `${minutes} mins`;
+            return `${hours} hrs ${minutes} mins`;
+        }
+
+        function saveAndRefreshUsersTable() {
+            localStorage.setItem('yasir_users_matrix', JSON.stringify(usersDB));
+            const tbody = document.getElementById('user-table-body');
+            if(!tbody) return;
+            tbody.innerHTML = "";
+
+            usersDB.forEach((user, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-900/40 transition";
+                
+                const pulseStatusBadge = user.isOnline ? 
+                    `<span class="flex items-center gap-1.5 text-emerald-400 font-bold"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> ONLINE</span>` : 
+                    `<span class="flex items-center gap-1.5 text-gray-500 font-bold"><span class="w-2 h-2 rounded-full bg-gray-600"></span> OFFLINE</span>`;
+
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-white">${user.username}</td>
+                    <td class="p-3 text-cyan-500 text-[11px]">${user.password}</td>
+                    <td class="p-3">${pulseStatusBadge}</td>
+                    <td class="p-3 text-gray-400 font-semibold">${user.lastOfflineTime || 'Never Logs'}</td>
+                    <td class="p-3 text-purple-400 font-bold">${formatRuntimeDisplay(user.totalRuntimeMs)}</td>
+                    <td class="p-3 text-amber-400 font-bold text-center">${user.fileOperationsCount || 0}</td>
+                    <td class="p-3 text-center">
+                        ${index === 0 ? 
+                        `<span class="text-gray-600 text-[10px] uppercase font-bold tracking-wider"><i class="fa-solid fa-lock"></i> Root</span>` : 
+                        `<button onclick="deleteUser(${index})" class="px-2 py-1 bg-red-950 hover:bg-red-900 border border-red-800 text-red-400 rounded cursor-pointer transition text-[11px] font-bold"><i class="fa-solid fa-trash-can"></i> Erase</button>`}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function switchTab(tabId, element) {
+            document.getElementById('panel-sorter').classList.add('hidden');
+            document.getElementById('panel-dashboard').classList.add('hidden');
+            document.getElementById('panel-login-manager').classList.add('hidden');
+            document.getElementById('panel-analytics').classList.add('hidden');
+            document.getElementById('panel-pulse').classList.add('hidden');
+            
+            const navButtons = document.querySelectorAll('#main-nav button');
+            navButtons.forEach(btn => btn.className = "w-full flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-lg text-sm font-semibold transition tracking-wide cursor-pointer");
+
+            document.getElementById(`panel-${tabId}`).classList.remove('hidden');
+            if(tabId === 'login-manager') saveAndRefreshUsersTable();
+            
+            let titleText = "Smart Image Sorter Engine Framework";
+            if(tabId==='dashboard') titleText = "Dashboard System Metrics";
+            if(tabId==='login-manager') titleText = "Security Login Manager & Pulse Monitor";
+            if(tabId==='analytics') titleText = "System Analytics Tracking Matrix";
+            if(tabId==='pulse') titleText = "PULSE Secure Handshake Hub";
+            document.getElementById('panel-title').innerText = titleText;
+
+            element.className = "w-full flex items-center gap-3 px-4 py-2.5 text-white bg-[#1a2333] border border-cyan-500/40 rounded-lg text-sm font-bold shadow-md tracking-wide cursor-pointer rgb-border-glow";
+        }
+
+        function openModal() { document.getElementById('setup-modal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('setup-modal').classList.add('hidden'); }
+
+        async function selectFolder(type) {
+            try {
+                const handle = await window.showDirectoryPicker();
+                if (type === 'source') {
+                    sourceHandle = handle;
+                    document.getElementById('src-status').innerText = `Linked: ${handle.name}`;
+                    document.getElementById('src-btn').className = "w-full border-2 border-cyan-400 bg-cyan-950/20 py-3 px-4 rounded-xl flex items-center justify-between text-left text-sm text-cyan-400 font-bold rgb-border-glow cursor-pointer bg-input";
+                } else {
+                    destHandle = handle;
+                    document.getElementById('dest-status').innerText = `Linked: ${handle.name}`;
+                    document.getElementById('dest-btn').className = "w-full border-2 border-purple-400 bg-purple-950/20 py-3 px-4 rounded-xl flex items-center justify-between text-left text-sm text-purple-400 font-bold cursor-pointer bg-input";
+                }
+                if (sourceHandle && destHandle) {
+                    const btn = document.getElementById('start-btn');
+                    btn.removeAttribute('disabled');
+                    btn.className = "px-5 py-2 rgb-gradient-btn text-black font-black rounded-xl text-xs cursor-pointer tech-font tracking-wider";
+                    btn.innerText = "Execute Engine Matrix";
+                }
+            } catch (err) { console.warn(err); }
+        }
+
+        async function startSortingSession() {
+            try {
+                imageFiles = [];
+                const options = { mode: 'readwrite' };
+                if ((await sourceHandle.queryPermission(options)) !== 'granted') await sourceHandle.requestPermission(options);
+                if ((await destHandle.queryPermission(options)) !== 'granted') await destHandle.requestPermission(options);
+
+                for await (const entry of sourceHandle.values()) {
+                    if (entry.kind === 'file' && /\.(jpg|jpeg|png|gif|bmp)$/i.test(entry.name)) imageFiles.push(entry);
+                }
+                if (imageFiles.length === 0) return alert("No image matrices identified in mounted input channel folder path.");
+
+                // --- LINE-WISE ALPHANUMERIC SORTING MATRIX ACTIVATED ---
+                imageFiles.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+
+                document.getElementById('total-count').innerText = imageFiles.length;
+                document.getElementById('dash-total-files').innerText = `${imageFiles.length} Target Source Files`;
+                
+                closeModal();
+                document.getElementById('state-setup').classList.add('hidden');
+                document.getElementById('state-viewer').classList.remove('hidden');
+                currentIndex = 0; displayCurrentFile();
+            } catch (e) { alert("Authorization handshake configuration canceled."); }
+        }
+
+        async function displayCurrentFile() {
+            const img = document.getElementById('target-img');
+            const placeholder = document.getElementById('no-img-placeholder');
+            if (currentIndex < imageFiles.length && currentIndex >= 0) {
+                const fileEntry = imageFiles[currentIndex];
+                const file = await fileEntry.getFile();
+                img.src = URL.createObjectURL(file);
+                img.classList.remove('hidden'); placeholder.classList.add('hidden');
+                document.getElementById('file-name-display').innerText = `NODE STREAM // ${fileEntry.name}`;
+                document.getElementById('progress-text').innerText = `DATA UNIT ${currentIndex + 1} OF ${imageFiles.length}`;
+                let pct = Math.round((currentIndex / imageFiles.length) * 100);
+                document.getElementById('progress-percent').innerText = `${pct}%`;
+                document.getElementById('progress-bar').style.width = `${pct}%`;
+            } else {
+                img.classList.add('hidden'); placeholder.classList.remove('hidden');
+                placeholder.innerText = "Pipeline streams completely parsed.";
+            }
+            currentZoom = 100; currentRotation = 0; updateTransform();
+        }
+
+        async function moveCurrentFile() {
+            const rawInput = document.getElementById('dest-folder-input').value.trim();
+            if (!rawInput) return alert("Specify structural destination pathway parameters name!");
+            if (currentIndex >= imageFiles.length) return;
+
+            const subFolders = rawInput.split(',').map(name => name.trim()).filter(name => name.length > 0);
+            if (subFolders.length === 0) return alert("Write directory parameters text correctly.");
+
+            try {
+                const currentFileEntry = imageFiles[currentIndex];
+                const file = await currentFileEntry.getFile();
+
+                for (const subFolderName of subFolders) {
+                    const targetSubFolderHandle = await destHandle.getDirectoryHandle(subFolderName, { create: true });
+                    const newFileHandle = await targetSubFolderHandle.getFileHandle(currentFileEntry.name, { create: true });
+                    const writable = await newFileHandle.createWritable();
+                    await writable.write(file);
+                    await writable.close();
+                }
+
+                undoStack.push({
+                    fileEntry: currentFileEntry,
+                    arrayIndex: currentIndex,
+                    historyObject: { fileName: currentFileEntry.name, folders: subFolders.join(', ') }
+                });
+
+                const timeString = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+                processHistory.unshift({
+                    fileName: currentFileEntry.name,
+                    folders: subFolders.join(', '),
+                    time: timeString
+                });
+                
+                // Save user isolated history logs
+                localStorage.setItem(`yasir_history_${currentUser}`, JSON.stringify(processHistory));
+                updateHistoryUI();
+
+                // Increment dynamic tracking values count for current online user session
+                if(currentUser) {
+                    usersDB = usersDB.map(u => {
+                        if(u.username === currentUser) {
+                            return { ...u, fileOperationsCount: (u.fileOperationsCount || 0) + 1 };
+                        }
+                        return u;
+                    });
+                    localStorage.setItem('yasir_users_matrix', JSON.stringify(usersDB));
+                }
+
+                movedCount++; 
+                document.getElementById('moved-count').innerText = movedCount;
+                document.getElementById('dest-folder-input').value = ""; 
+                imageFiles.splice(currentIndex, 1); 
+                displayCurrentFile();
+            } catch (err) { alert("File system transfer IO handshake error."); }
+        }
+
+        function triggerUndoAction() {
+            if (undoStack.length === 0) return alert("No active operation records stacked to recover.");
+
+            const lastAction = undoStack.pop();
+            imageFiles.splice(lastAction.arrayIndex, 0, lastAction.fileEntry);
+            
+            processHistory = processHistory.filter(item => !(item.fileName === lastAction.historyObject.fileName && item.folders === lastAction.historyObject.folders));
+            localStorage.setItem(`yasir_history_${currentUser}`, JSON.stringify(processHistory));
+            updateHistoryUI();
+
+            // Adjust metrics rollback value structure count parameters
+            if(currentUser) {
+                usersDB = usersDB.map(u => {
+                    if(u.username === currentUser) {
+                        return { ...u, fileOperationsCount: Math.max(0, (u.fileOperationsCount || 0) - 1) };
+                    }
+                    return u;
+                });
+                localStorage.setItem('yasir_users_matrix', JSON.stringify(usersDB));
+            }
+
+            movedCount = Math.max(0, movedCount - 1);
+            document.getElementById('moved-count').innerText = movedCount;
+            
+            currentIndex = lastAction.arrayIndex;
+            displayCurrentFile();
+        }
+
+        function updateHistoryUI() {
+            const container = document.getElementById('history-container');
+            if(!container) return;
+            container.innerHTML = "";
+            if (processHistory.length === 0) {
+                container.innerHTML = `<div class="text-gray-600 text-center py-8">No data logs recorded yet.</div>`;
+                return;
+            }
+            processHistory.forEach(item => {
+                const div = document.createElement('div');
+                div.className = "bg-[#161a26] border border-gray-800/80 p-2 rounded-lg space-y-1 relative overflow-hidden bg-panel";
+                div.innerHTML = `
+                    <div class="flex justify-between items-center text-white font-bold truncate">
+                        <span class="text-[11px] truncate max-w-[180px]" title="${item.fileName}"><i class="fa-regular fa-image text-cyan-400 mr-1"></i>${item.fileName}</span>
+                        <span class="text-[9px] text-gray-500">${item.time}</span>
+                    </div>
+                    <div class="text-[10px] text-gray-400 truncate">
+                        <span class="text-purple-400 font-bold">Folders Link:</span> [${item.folders}]
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function navigateImage(direction) {
+            currentIndex += direction;
+            if (currentIndex < 0) currentIndex = 0;
+            if (currentIndex >= imageFiles.length) currentIndex = imageFiles.length - 1;
+            displayCurrentFile();
+        }
+        function handleKeyPress(e) { if (e.key === 'Enter') moveCurrentFile(); }
+        function zoom(amount) { currentZoom = Math.max(50, Math.min(300, currentZoom + amount)); updateTransform(); }
+        function rotate(degree) { currentRotation += degree; updateTransform(); }
+        function updateTransform() {
+            document.getElementById('image-frame').style.transform = `scale(${currentZoom/100}) rotate(${currentRotation}deg)`;
+            document.getElementById('zoom-text').innerText = `${currentZoom}%`;
+        }
+    </script>
+</body>
+</html>
