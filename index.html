@@ -29,7 +29,7 @@
         .custom-scroll::-webkit-scrollbar-thumb { background: #1f2636; border-radius: 10px; }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: #00f2fe; }
 
-        @keyframes pulseGlow { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; transform: scale(1.05); } }
+        @keyframes pulseGlow { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; transform: scale(1.02); } }
         .welcome-pulse { animation: pulseGlow 2s infinite ease-in-out; }
 
         /* Dynamic Theme Engines Classes */
@@ -57,7 +57,9 @@
 
     <div id="screen-welcome" class="absolute inset-0 bg-[#07090e] z-50 flex flex-col items-center justify-center p-4">
         <div class="text-center space-y-6 max-w-md welcome-pulse">
-            <div class="w-24 h-24 rgb-gradient-btn rounded-3xl flex items-center justify-center text-black font-black text-4xl tech-font mx-auto shadow-2xl">Y</div>
+            <div class="w-28 h-28 rgb-gradient-btn rounded-3xl flex items-center justify-center overflow-hidden p-1 shadow-2xl mx-auto">
+                <img src="Yasir.png" alt="Yasir Logo" class="w-full h-full object-cover rounded-2xl">
+            </div>
             <h1 class="text-5xl font-black tracking-widest text-white tech-font rgb-text-glow">WELCOME YASIR</h1>
             <p class="text-cyan-400 font-bold tracking-widest uppercase text-sm">Initializing Cyber Cryptic Workspace...</p>
         </div>
@@ -115,7 +117,9 @@
         <div class="flex flex-col h-full justify-between">
             <div>
                 <div class="flex items-center gap-3 px-2 py-3 mb-8 border-b border-gray-800 pb-5">
-                    <div class="w-10 h-10 rgb-gradient-btn rounded-xl flex items-center justify-center text-black font-black text-xl tech-font shadow-lg">Y</div>
+                    <div class="w-10 h-10 rgb-gradient-btn rounded-xl flex items-center justify-center overflow-hidden p-[2px] shadow-lg">
+                        <img src="Yasir.png" alt="Yasir Icon" class="w-full h-full object-cover rounded-lg">
+                    </div>
                     <div class="flex flex-col">
                         <span class="font-bold text-2xl tracking-wider text-white tech-font rgb-text-glow">YASIR</span>
                         <span class="text-[10px] text-cyan-400 font-bold tracking-widest uppercase">Sorter Platform</span>
@@ -171,10 +175,17 @@
         <div class="flex-1 overflow-hidden p-6 relative">
             
             <div id="panel-sorter" class="w-full h-full flex gap-6">
-                <div id="state-setup" class="w-full h-full flex flex-col items-center justify-center absolute inset-0 z-20 bg-[#090b0f]/90">
-                    <div class="bg-[#11141d] border border-gray-800 shadow-2xl rounded-2xl p-12 text-center max-w-md w-full flex flex-col items-center relative overflow-hidden bg-panel">
+                
+                <div id="state-setup" class="w-full h-full flex flex-col items-center justify-center absolute inset-0 z-20 bg-contain bg-center bg-no-repeat" style="background-image: url('Yasir.png'); background-color: #090b0f;">
+                    <div class="absolute inset-0 bg-[#090b0f]/85 backdrop-blur-[1px]"></div>
+                    
+                    <div class="bg-[#11141d]/90 backdrop-blur-md border border-cyan-500/30 shadow-2xl rounded-2xl p-12 text-center max-w-md w-full flex flex-col items-center relative overflow-hidden bg-panel z-10">
                         <div class="absolute top-0 left-0 right-0 h-1 rgb-gradient-btn"></div>
-                        <div class="w-20 h-20 bg-cyan-950/40 border border-cyan-500/30 rounded-full flex items-center justify-center mb-6 shadow-inner"><i class="fa-solid fa-folder-open text-cyan-400 text-3xl"></i></div>
+                        
+                        <div class="w-16 h-16 bg-cyan-950/40 border border-cyan-500/40 rounded-full flex items-center justify-center mb-6 text-cyan-400 text-2xl shadow-lg">
+                            <i class="fa-solid fa-folder-open"></i>
+                        </div>
+                        
                         <h2 class="text-2xl font-bold text-white mb-2 tech-font">Initialize Directory Matrix</h2>
                         <p class="text-sm text-gray-400 mb-6 px-4">Link your machine's system storage path channels to extract data.</p>
                         <button onclick="openModal()" class="w-full rgb-gradient-btn text-black font-bold py-3 rounded-xl shadow transition flex items-center justify-center gap-2 cursor-pointer uppercase tracking-widest text-xs">
@@ -304,8 +315,7 @@
                                     <th class="p-3 text-center">Action</th>
                                 </tr>
                             </thead>
-                            <tbody id="user-table-body" class="divide-y divide-gray-800 font-mono text-gray-300">
-                                </tbody>
+                            <tbody id="user-table-body" class="divide-y divide-gray-800 font-mono text-gray-300"></tbody>
                         </table>
                     </div>
                 </div>
@@ -339,8 +349,7 @@
                 </div>
                 <div class="h-48 border border-gray-800 rounded-xl relative bg-[#090b0f] p-4 overflow-hidden flex flex-col justify-between">
                     <span class="text-[10px] text-gray-500 uppercase font-bold tracking-widest block"><i class="fa-solid fa-network-wired"></i> Network Pipeline Activity Visual Stream</span>
-                    <div class="flex items-end gap-1 w-full h-32 pt-4" id="stream-chart-bars">
-                        </div>
+                    <div class="flex items-end gap-1 w-full h-32 pt-4" id="stream-chart-bars"></div>
                 </div>
             </div>
 
@@ -387,17 +396,15 @@
     </div>
 
     <script>
-        // System user memory structure model initialization
         let defaultUsers = [
             {username: "Yasir123", password: "Yasir123", months: "Unlimited Master", createdTime: new Date(2020, 0, 1).getTime(), isOnline: false, lastOfflineTime: "Never", totalRuntimeMs: 0, fileOperationsCount: 0}
         ];
 
         let usersDB = JSON.parse(localStorage.getItem('yasir_users_matrix')) || defaultUsers;
         
-        // --- USER ISOLATION CORE MEMORY POOLS ---
         let currentUser = "";
         let sourceHandle = null, destHandle = null;
-        let imageFiles = []; // Har user ki memory alag load hogi
+        let imageFiles = []; 
         let currentIndex = 0, movedCount = 0;
         let currentZoom = 100, currentRotation = 0;
         let processHistory = [];
@@ -413,13 +420,11 @@
             saveAndRefreshUsersTable();
             initPerformanceStreamEngine();
             
-            // Explicit Core Theme Initialization Hook Setup
             const activeThemeMode = localStorage.getItem('yasir_sys_theme') || 'dark';
             document.getElementById('theme-selector').value = activeThemeMode;
             executeSystemThemeToggle(activeThemeMode);
         });
 
-        // Strict Operational Visual Theme Layout Switch Engine
         function executeSystemThemeToggle(mode) {
             document.body.classList.remove('theme-light', 'theme-cyber');
             if (mode === 'light') {
@@ -430,7 +435,6 @@
             localStorage.setItem('yasir_sys_theme', mode);
         }
 
-        // Live Performance Streams Analytics Simulation Script Link Hub
         function initPerformanceStreamEngine() {
             const chartContainer = document.getElementById('stream-chart-bars');
             if(chartContainer) {
@@ -482,7 +486,7 @@
                 document.getElementById('current-session-user').innerText = savedSession.username;
                 
                 currentUser = savedSession.username;
-                loadUserSpecificDataPools(); // Load user isolated assets
+                loadUserSpecificDataPools(); 
 
                 initiateUserPulseSession(savedSession.username);
                 toggleLoginManagerVisibility(savedSession.username);
@@ -496,9 +500,7 @@
             }
         }
 
-        // --- LOAD USER SPECIFIC ISOLATED CORES ---
         function loadUserSpecificDataPools() {
-            // Reset browser active instances
             imageFiles = [];
             currentIndex = 0;
             movedCount = 0;
@@ -506,7 +508,6 @@
             sourceHandle = null;
             destHandle = null;
 
-            // Reset setup screens back to defaults
             document.getElementById('state-setup').classList.remove('hidden');
             document.getElementById('state-viewer').classList.add('hidden');
             document.getElementById('src-status').innerText = "Mount Source Drive Pipeline Channel";
@@ -518,11 +519,9 @@
             startBtn.setAttribute('disabled', 'true');
             startBtn.className = "px-4 py-2 bg-gray-900 text-gray-600 rounded-xl text-xs font-bold cursor-not-allowed tech-font border border-gray-800";
 
-            // Load Isolated Live History Logs
             processHistory = JSON.parse(localStorage.getItem(`yasir_history_${currentUser}`)) || [];
             updateHistoryUI();
 
-            // Clear active viewer displays
             document.getElementById('target-img').classList.add('hidden');
             document.getElementById('no-img-placeholder').classList.remove('hidden');
             document.getElementById('file-name-display').innerText = "No file online";
@@ -689,7 +688,7 @@
                 const sessionObject = { username: verifiedUser.username, timestamp: new Date().getTime() };
                 localStorage.setItem('yasir_active_session', JSON.stringify(sessionObject));
 
-                loadUserSpecificDataPools(); // Reset/load database components for current unique user node
+                loadUserSpecificDataPools(); 
 
                 initiateUserPulseSession(verifiedUser.username);
                 toggleLoginManagerVisibility(verifiedUser.username);
@@ -746,7 +745,6 @@
         function deleteUser(index) {
             if(index === 0) return alert("System core protection block: Primary administrative master root account can never be cleared.");
             if(confirm(`Erase structural profile token [${usersDB[index].username}] completely?`)) {
-                // Clear isolated user logs from localstorage before deleting account context link
                 localStorage.removeItem(`yasir_history_${usersDB[index].username}`);
                 usersDB.splice(index, 1);
                 saveAndRefreshUsersTable();
@@ -853,7 +851,6 @@
                 }
                 if (imageFiles.length === 0) return alert("No image matrices identified in mounted input channel folder path.");
 
-                // --- LINE-WISE ALPHANUMERIC SORTING MATRIX ACTIVATED ---
                 imageFiles.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
 
                 document.getElementById('total-count').innerText = imageFiles.length;
@@ -919,11 +916,9 @@
                     time: timeString
                 });
                 
-                // Save user isolated history logs
                 localStorage.setItem(`yasir_history_${currentUser}`, JSON.stringify(processHistory));
                 updateHistoryUI();
 
-                // Increment dynamic tracking values count for current online user session
                 if(currentUser) {
                     usersDB = usersDB.map(u => {
                         if(u.username === currentUser) {
@@ -952,7 +947,6 @@
             localStorage.setItem(`yasir_history_${currentUser}`, JSON.stringify(processHistory));
             updateHistoryUI();
 
-            // Adjust metrics rollback value structure count parameters
             if(currentUser) {
                 usersDB = usersDB.map(u => {
                     if(u.username === currentUser) {
