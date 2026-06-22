@@ -251,23 +251,6 @@
                                 <div id="history-container" class="flex-1 overflow-y-auto custom-scroll space-y-2 pr-1 text-[11px] font-mono mb-4">
                                     <div class="text-gray-600 text-center py-8">No data logs recorded yet.</div>
                                 </div>
-
-                                <div class="border border-cyan-500/30 bg-gradient-to-r from-[#161a26] to-[#0f131c] rounded-xl p-3.5 shadow-lg shrink-0 bg-panel mt-auto">
-                                    <div class="flex items-center justify-between mb-2 pb-1.5 border-b border-gray-800">
-                                        <div class="flex items-center gap-1.5">
-                                            <i class="fa-solid fa-terminal text-cyan-400 text-xs animate-pulse"></i>
-                                            <span class="text-[9px] text-gray-400 font-bold tracking-widest uppercase">SYSTEM DEVELOPER CORE</span>
-                                        </div>
-                                        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-                                    </div>
-                                    <div class="flex items-center justify-between mb-2">
-                                        <span class="text-xs font-black text-white tech-font tracking-widest rgb-text-glow">MALIK SHBAZ</span>
-                                        <a href="https://wa.me/923224516023" target="_blank" class="flex items-center gap-1 text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-bold hover:bg-emerald-500 hover:text-black transition shadow">
-                                            <i class="fa-brands fa-whatsapp text-xs"></i> WhatsApp Live
-                                        </a>
-                                    </div>
-                                    <p class="text-[11px] text-gray-400 font-medium leading-relaxed text-center">Hum Se Kisi Bi Trha Ki Custom AI, Sorter Platform, Trading Tools Ya Web Game Dashboard Banwane Ke Liye Diye Gaye WhatsApp Pe Rabta Kare.</p>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -895,6 +878,7 @@
                 const currentFileEntry = imageFiles[currentIndex];
                 const file = await currentFileEntry.getFile();
 
+                // Naye folders me image save/write karna
                 for (const subFolderName of subFolders) {
                     const targetSubFolderHandle = await destHandle.getDirectoryHandle(subFolderName, { create: true });
                     const newFileHandle = await targetSubFolderHandle.getFileHandle(currentFileEntry.name, { create: true });
@@ -903,10 +887,16 @@
                     await writable.close();
                 }
 
+                // File ko original (source) folder se delete (Cut) karna
+                if (typeof sourceHandle.removeEntry === 'function') {
+                    await sourceHandle.removeEntry(currentFileEntry.name);
+                }
+
                 undoStack.push({
                     fileEntry: currentFileEntry,
                     arrayIndex: currentIndex,
-                    historyObject: { fileName: currentFileEntry.name, folders: subFolders.join(', ') }
+                    historyObject: { fileName: currentFileEntry.name, folders: subFolders.join(', ') },
+                    fileData: file // Undo ke waqt file wapas restore karne ke liye data save kiya
                 });
 
                 const timeString = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
@@ -937,31 +927,42 @@
             } catch (err) { alert("File system transfer IO handshake error."); }
         }
 
-        function triggerUndoAction() {
+        async function triggerUndoAction() {
             if (undoStack.length === 0) return alert("No active operation records stacked to recover.");
 
             const lastAction = undoStack.pop();
-            imageFiles.splice(lastAction.arrayIndex, 0, lastAction.fileEntry);
-            
-            processHistory = processHistory.filter(item => !(item.fileName === lastAction.historyObject.fileName && item.folders === lastAction.historyObject.folders));
-            localStorage.setItem(`yasir_history_${currentUser}`, JSON.stringify(processHistory));
-            updateHistoryUI();
 
-            if(currentUser) {
-                usersDB = usersDB.map(u => {
-                    if(u.username === currentUser) {
-                        return { ...u, fileOperationsCount: Math.max(0, (u.fileOperationsCount || 0) - 1) };
-                    }
-                    return u;
-                });
-                localStorage.setItem('yasir_users_matrix', JSON.stringify(usersDB));
+            try {
+                // Cut kiye huay file ko wapas source folder me recreate/restore karna
+                const restoredFileHandle = await sourceHandle.getFileHandle(lastAction.fileEntry.name, { create: true });
+                const writable = await restoredFileHandle.createWritable();
+                await writable.write(lastAction.fileData);
+                await writable.close();
+
+                imageFiles.splice(lastAction.arrayIndex, 0, lastAction.fileEntry);
+                
+                processHistory = processHistory.filter(item => !(item.fileName === lastAction.historyObject.fileName && item.folders === lastAction.historyObject.folders));
+                localStorage.setItem(`yasir_history_${currentUser}`, JSON.stringify(processHistory));
+                updateHistoryUI();
+
+                if(currentUser) {
+                    usersDB = usersDB.map(u => {
+                        if(u.username === currentUser) {
+                            return { ...u, fileOperationsCount: Math.max(0, (u.fileOperationsCount || 0) - 1) };
+                        }
+                        return u;
+                    });
+                    localStorage.setItem('yasir_users_matrix', JSON.stringify(usersDB));
+                }
+
+                movedCount = Math.max(0, movedCount - 1);
+                document.getElementById('moved-count').innerText = movedCount;
+                
+                currentIndex = lastAction.arrayIndex;
+                displayCurrentFile();
+            } catch (err) {
+                alert("Could not restore file to source directory.");
             }
-
-            movedCount = Math.max(0, movedCount - 1);
-            document.getElementById('moved-count').innerText = movedCount;
-            
-            currentIndex = lastAction.arrayIndex;
-            displayCurrentFile();
         }
 
         function updateHistoryUI() {
