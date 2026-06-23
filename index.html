@@ -51,15 +51,6 @@
         body.theme-cyber .rgb-border-glow { box-shadow: 0 0 20px #ff007f; border-color: #ff007f; }
         body.theme-cyber .rgb-text-glow { text-shadow: 0 0 12px #ff007f; color: #ff007f !important; }
         body.theme-cyber .bg-input { background-color: #12122c !important; border: 1px solid #00ffcc !important; color: #00ffcc !important; }
-
-        /* Draggable Zoom Canvas Styling */
-        #viewport-container {
-            cursor: grab;
-            user-select: none;
-        }
-        #viewport-container:active {
-            cursor: grabbing;
-        }
     </style>
 </head>
 <body class="text-gray-200 overflow-hidden h-screen w-screen flex relative">
@@ -122,7 +113,7 @@
         </div>
     </div>
 
-    <aside id="main-sidebar-panel" class="w-64 bg-[#11141d] border-r border-gray-800 flex flex-col justify-between p-4 shrink-0 shadow-xl transition-all duration-300">
+    <aside class="w-64 bg-[#11141d] border-r border-gray-800 flex flex-col justify-between p-4 shrink-0 shadow-xl">
         <div class="flex flex-col h-full justify-between">
             <div>
                 <div class="flex items-center gap-3 px-2 py-3 mb-8 border-b border-gray-800 pb-5">
@@ -204,31 +195,29 @@
                 </div>
 
                 <div id="state-viewer" class="w-full h-full flex gap-6 hidden">
-                    <div class="flex-1 bg-[#11141d] border border-gray-800/20 rounded-2xl shadow-2xl flex flex-col overflow-hidden relative bg-panel">
+                    <div class="flex-1 bg-[#11141d] border border-gray-800 rounded-2xl shadow-xl flex flex-col overflow-hidden relative bg-panel">
                         <div class="h-11 border-b border-gray-800 px-4 flex items-center justify-between bg-[#151924] shrink-0">
                             <span class="px-3 py-1 bg-cyan-950 text-cyan-400 border border-cyan-500/30 rounded text-xs font-bold tracking-wider uppercase tech-font">System Viewport</span>
-                            <span class="text-xs text-gray-400 font-bold" id="file-name-display">No file online</span>
+                            <span class="text-xs text-gray-500" id="file-name-display">No file online</span>
                         </div>
                         
-                        <div id="viewport-container" class="flex-1 relative bg-[#040508] flex items-center justify-center p-1 overflow-hidden shadow-inner">
-                            <button onclick="navigateImage(-1)" class="absolute left-6 z-10 w-14 h-14 bg-[#161a26]/90 hover:bg-[#1f2636] border border-cyan-500/30 rounded-full flex items-center justify-center text-cyan-400 hover:text-white shadow-2xl transition cursor-pointer"><i class="fa-solid fa-chevron-left text-xl"></i></button>
+                        <div class="flex-1 relative bg-[#090b0f] flex items-center justify-center p-2 overflow-hidden shadow-inner">
+                            <button onclick="navigateImage(-1)" class="absolute left-4 z-10 w-11 h-11 bg-[#161a26]/80 hover:bg-[#1f2636] border border-gray-800 rounded-full flex items-center justify-center text-cyan-400 hover:text-white shadow-lg transition cursor-pointer"><i class="fa-solid fa-chevron-left text-lg"></i></button>
                             
-                            <div class="w-full h-full flex items-center justify-center absolute inset-0" id="image-frame" style="transform: translate(0px, 0px) scale(1) rotate(0deg);">
-                                <img src="" alt="YASIR Core Matrix Screen" class="object-contain w-full h-full max-w-full max-h-[82vh] hidden rounded-lg transition-all pointer-events-none" id="target-img">
+                            <div class="w-full h-full flex items-center justify-center transition-transform duration-200" id="image-frame" style="transform: scale(1) rotate(0deg);">
+                                <img src="" alt="YASIR Core Matrix Screen" class="object-contain max-w-full max-h-[76vh] hidden rounded-xl border border-gray-800 shadow-2xl transition-all" id="target-img">
                                 <div id="no-img-placeholder" class="text-gray-600 font-bold tracking-widest uppercase text-sm tech-font">Matrix Frame Empty</div>
                             </div>
                             
-                            <button onclick="navigateImage(1)" class="absolute right-6 z-10 w-14 h-14 bg-[#161a26]/90 hover:bg-[#1f2636] border border-cyan-500/30 rounded-full flex items-center justify-center text-cyan-400 hover:text-white shadow-2xl transition cursor-pointer"><i class="fa-solid fa-chevron-right text-xl"></i></button>
+                            <button onclick="navigateImage(1)" class="absolute right-4 z-10 w-11 h-11 bg-[#161a26]/80 hover:bg-[#1f2636] border border-gray-800 rounded-full flex items-center justify-center text-cyan-400 hover:text-white shadow-lg transition cursor-pointer"><i class="fa-solid fa-chevron-right text-lg"></i></button>
                             
-                            <div class="absolute bottom-6 bg-[#11141d]/95 backdrop-blur-md px-6 py-2.5 rounded-xl shadow-2xl border border-gray-800 flex items-center gap-5 text-xs text-gray-400 font-semibold z-10 bg-panel">
+                            <div class="absolute bottom-4 bg-[#11141d]/90 backdrop-blur-md px-5 py-2 rounded-xl shadow-2xl border border-gray-800 flex items-center gap-5 text-xs text-gray-400 font-semibold z-10 bg-panel">
                                 <button onclick="zoom(-25)" class="hover:text-cyan-400 transition cursor-pointer"><i class="fa-solid fa-search-minus text-base"></i></button>
                                 <span id="zoom-text" class="tech-font text-cyan-400 text-[11px]">100%</span>
                                 <button onclick="zoom(25)" class="hover:text-cyan-400 transition cursor-pointer"><i class="fa-solid fa-search-plus text-base"></i></button>
                                 <div class="w-[1px] h-5 bg-gray-800"></div>
                                 <button onclick="rotate(-90)" class="hover:text-cyan-400 transition cursor-pointer"><i class="fa-solid fa-rotate-left text-base"></i></button>
                                 <button onclick="rotate(90)" class="hover:text-cyan-400 transition cursor-pointer"><i class="fa-solid fa-rotate-right text-base"></i></button>
-                                <div class="w-[1px] h-5 bg-gray-800"></div>
-                                <button onclick="resetMatrixView()" class="hover:text-amber-400 transition cursor-pointer" title="Reset Positioning"><i class="fa-solid fa-arrows-to-dot text-base"></i></button>
                             </div>
                         </div>
                         <div class="h-8 bg-[#151924] border-t border-gray-800 px-4 flex items-center justify-end text-[11px] text-gray-400 font-bold tracking-wider tech-font shrink-0" id="progress-text">IMAGE 0 / 0</div>
@@ -237,14 +226,7 @@
                     <div class="w-80 flex flex-col gap-4 shrink-0 h-full overflow-hidden">
                         <div class="bg-[#11141d] border border-gray-800 rounded-2xl p-4 shadow-xl relative overflow-hidden shrink-0 bg-panel">
                             <div class="absolute top-0 left-0 w-1 h-full bg-cyan-500"></div>
-                            
-                            <div class="flex items-center justify-between mb-2">
-                                <label class="text-xs font-bold text-cyan-400 tracking-widest uppercase block tech-font">Target Sub-Folder Hub</label>
-                                <label class="flex items-center gap-1 text-[11px] font-bold text-gray-400 cursor-pointer">
-                                    <input type="checkbox" id="keep-input-checkbox" checked class="rounded border-gray-700 bg-[#161a26] text-cyan-500 focus:ring-0">
-                                    <span>Keep Input</span>
-                                </label>
-                            </div>
+                            <label class="text-xs font-bold text-cyan-400 tracking-widest uppercase block mb-2 tech-font">Target Sub-Folder Hub</label>
                             
                             <div class="flex items-center gap-2 mb-3">
                                 <input type="text" id="dest-folder-input" placeholder="Enter Folder Name (Ex: 101,102)" class="flex-1 bg-[#161a26] border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500 transition bg-input" onkeypress="handleKeyPress(event)">
@@ -312,7 +294,7 @@
                                     <th class="p-3">Network Pulse</th>
                                     <th class="p-3">Last Sign-Off Time</th>
                                     <th class="p-3">Total Runtime</th>
-                                    <th class="p-3 font-bold text-center">Sorted Files</th>
+                                    <th class="p-3">Sorted Files</th>
                                     <th class="p-3 text-center">Action</th>
                                 </tr>
                             </thead>
@@ -407,11 +389,7 @@
         let sourceHandle = null, destHandle = null;
         let imageFiles = []; 
         let currentIndex = 0, movedCount = 0;
-        
-        // Global Positioning Config Engine (Persistence on Matrix)
         let currentZoom = 100, currentRotation = 0;
-        let currentPanX = 0, currentPanY = 0;
-        
         let processHistory = [];
         let undoStack = []; 
         
@@ -419,16 +397,11 @@
         let isListening = false;
         let runtimeTrackingInterval = null;
 
-        // Drag & Panning Core Flags
-        let isDragging = false;
-        let startX, startY;
-
         window.addEventListener('DOMContentLoaded', () => {
             initVoiceRecognitionEngine();
             checkSessionPersistence();
             saveAndRefreshUsersTable();
             initPerformanceStreamEngine();
-            initDragAndPanEngine();
             
             const activeThemeMode = localStorage.getItem('yasir_sys_theme') || 'dark';
             document.getElementById('theme-selector').value = activeThemeMode;
@@ -480,44 +453,6 @@
             }, 1500);
         }
 
-        // Drag, Scroll & Panning Engine Logic (MOUSE LEFT CLICK DRAG ADDED)
-        function initDragAndPanEngine() {
-            const container = document.getElementById('viewport-container');
-
-            container.addEventListener('mousedown', (e) => {
-                // Ignore navigation buttons or bottom layout bars clicks
-                if (e.target.closest('button') || e.target.closest('.absolute:not(#image-frame)')) return;
-                
-                // Only trigger on left click (button 0)
-                if (e.button === 0) {
-                    isDragging = true;
-                    startX = e.clientX - currentPanX;
-                    startY = e.clientY - currentPanY;
-                }
-            });
-
-            window.addEventListener('mousemove', (e) => {
-                if (!isDragging) return;
-                currentPanX = e.clientX - startX;
-                currentPanY = e.clientY - startY;
-                updateTransform();
-            });
-
-            window.addEventListener('mouseup', () => {
-                isDragging = false;
-            });
-
-            // Fallback wheel scroll inside container
-            container.addEventListener('wheel', (e) => {
-                if (currentZoom > 100) {
-                    e.preventDefault();
-                    currentPanY -= e.deltaY;
-                    currentPanX -= e.deltaX;
-                    updateTransform();
-                }
-            }, { passive: false });
-        }
-
         function checkSessionPersistence() {
             const savedSession = JSON.parse(localStorage.getItem('yasir_active_session'));
             const currentTime = new Date().getTime();
@@ -556,7 +491,6 @@
             sourceHandle = null;
             destHandle = null;
 
-            document.getElementById('main-sidebar-panel').style.display = "flex";
             document.getElementById('state-setup').classList.remove('hidden');
             document.getElementById('state-viewer').classList.add('hidden');
             document.getElementById('src-status').innerText = "Mount Source Drive Pipeline Channel";
@@ -848,8 +782,6 @@
             document.getElementById('panel-analytics').classList.add('hidden');
             document.getElementById('panel-pulse').classList.add('hidden');
             
-            document.getElementById('main-sidebar-panel').style.display = "flex";
-
             const navButtons = document.querySelectorAll('#main-nav button');
             navButtons.forEach(btn => btn.className = "w-full flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-lg text-sm font-semibold transition tracking-wide cursor-pointer");
 
@@ -863,9 +795,7 @@
             if(tabId==='pulse') titleText = "PULSE Secure Handshake Hub";
             document.getElementById('panel-title').innerText = titleText;
 
-            if (element) {
-                element.className = "w-full flex items-center gap-3 px-4 py-2.5 text-white bg-[#1a2333] border border-cyan-500/40 rounded-lg text-sm font-bold shadow-md tracking-wide cursor-pointer rgb-border-glow";
-            }
+            element.className = "w-full flex items-center gap-3 px-4 py-2.5 text-white bg-[#1a2333] border border-cyan-500/40 rounded-lg text-sm font-bold shadow-md tracking-wide cursor-pointer rgb-border-glow";
         }
 
         function openModal() { document.getElementById('setup-modal').classList.remove('hidden'); }
@@ -912,7 +842,6 @@
                 closeModal();
                 document.getElementById('state-setup').classList.add('hidden');
                 document.getElementById('state-viewer').classList.remove('hidden');
-                
                 currentIndex = 0; displayCurrentFile();
             } catch (e) { alert("Authorization handshake configuration canceled."); }
         }
@@ -933,16 +862,12 @@
             } else {
                 img.classList.add('hidden'); placeholder.classList.remove('hidden');
                 placeholder.innerText = "Pipeline streams completely parsed.";
-                document.getElementById('main-sidebar-panel').style.display = "flex";
             }
-            
-            // Image persist transform alignment logic preserved
-            updateTransform();
+            currentZoom = 100; currentRotation = 0; updateTransform();
         }
 
         async function moveCurrentFile() {
-            const folderInput = document.getElementById('dest-folder-input');
-            const rawInput = folderInput.value.trim();
+            const rawInput = document.getElementById('dest-folder-input').value.trim();
             if (!rawInput) return alert("Specify structural destination pathway parameters name!");
             if (currentIndex >= imageFiles.length) return;
 
@@ -953,6 +878,7 @@
                 const currentFileEntry = imageFiles[currentIndex];
                 const file = await currentFileEntry.getFile();
 
+                // Naye folders me image save/write karna
                 for (const subFolderName of subFolders) {
                     const targetSubFolderHandle = await destHandle.getDirectoryHandle(subFolderName, { create: true });
                     const newFileHandle = await targetSubFolderHandle.getFileHandle(currentFileEntry.name, { create: true });
@@ -961,21 +887,16 @@
                     await writable.close();
                 }
 
-                try {
+                // File ko original (source) folder se delete (Cut) karna
+                if (typeof sourceHandle.removeEntry === 'function') {
                     await sourceHandle.removeEntry(currentFileEntry.name);
-                } catch (removeErr) {
-                    if (typeof currentFileEntry.remove === 'function') {
-                        await currentFileEntry.remove();
-                    } else {
-                        throw removeErr;
-                    }
                 }
 
                 undoStack.push({
                     fileEntry: currentFileEntry,
                     arrayIndex: currentIndex,
                     historyObject: { fileName: currentFileEntry.name, folders: subFolders.join(', ') },
-                    fileData: file
+                    fileData: file // Undo ke waqt file wapas restore karne ke liye data save kiya
                 });
 
                 const timeString = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
@@ -1000,19 +921,10 @@
 
                 movedCount++; 
                 document.getElementById('moved-count').innerText = movedCount;
-                
-                // Toggle option logic for clearing input box number channel
-                const keepInput = document.getElementById('keep-input-checkbox').checked;
-                if (!keepInput) {
-                    folderInput.value = "";
-                }
-
+                document.getElementById('dest-folder-input').value = ""; 
                 imageFiles.splice(currentIndex, 1); 
                 displayCurrentFile();
-            } catch (err) { 
-                console.error(err);
-                alert("File system transfer IO handshake error: Permission denied or file locked."); 
-            }
+            } catch (err) { alert("File system transfer IO handshake error."); }
         }
 
         async function triggerUndoAction() {
@@ -1021,6 +933,7 @@
             const lastAction = undoStack.pop();
 
             try {
+                // Cut kiye huay file ko wapas source folder me recreate/restore karna
                 const restoredFileHandle = await sourceHandle.getFileHandle(lastAction.fileEntry.name, { create: true });
                 const writable = await restoredFileHandle.createWritable();
                 await writable.write(lastAction.fileData);
@@ -1083,21 +996,10 @@
             displayCurrentFile();
         }
         function handleKeyPress(e) { if (e.key === 'Enter') moveCurrentFile(); }
-        
-        function zoom(amount) { currentZoom = Math.max(50, Math.min(600, currentZoom + amount)); updateTransform(); }
+        function zoom(amount) { currentZoom = Math.max(50, Math.min(300, currentZoom + amount)); updateTransform(); }
         function rotate(degree) { currentRotation += degree; updateTransform(); }
-        
-        function resetMatrixView() {
-            currentZoom = 100;
-            currentRotation = 0;
-            currentPanX = 0;
-            currentPanY = 0;
-            updateTransform();
-        }
-
         function updateTransform() {
-            // CSS Transform Pipeline Matrix: Handles Scale + Pan Shifts on Global Engine Frame
-            document.getElementById('image-frame').style.transform = `translate(${currentPanX}px, ${currentPanY}px) scale(${currentZoom/100}) rotate(${currentRotation}deg)`;
+            document.getElementById('image-frame').style.transform = `scale(${currentZoom/100}) rotate(${currentRotation}deg)`;
             document.getElementById('zoom-text').innerText = `${currentZoom}%`;
         }
     </script>
