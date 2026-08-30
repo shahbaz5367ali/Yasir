@@ -238,6 +238,14 @@
                         <div class="bg-[#11141d] border border-gray-800 rounded-2xl p-4 shadow-xl relative overflow-hidden shrink-0 bg-panel">
                             <div class="absolute top-0 left-0 w-1 h-full bg-cyan-500"></div>
                             
+                            <div class="mb-3">
+                                <label class="text-xs font-bold text-cyan-400 tracking-widest uppercase block tech-font mb-1">Sorting Operation Mode</label>
+                                <select id="sorter-mode-select" class="w-full bg-[#161a26] border border-gray-800 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none focus:border-cyan-500 cursor-pointer bg-input">
+                                    <option value="RHZ">RHZ - Standard Single Sub-Folder Mode</option>
+                                    <option value="MUT">MUT - Multi-Nested Auto-Folder Mode (e.g. 757,758,759.8)</option>
+                                </select>
+                            </div>
+
                             <div class="flex items-center justify-between mb-2">
                                 <label class="text-xs font-bold text-cyan-400 tracking-widest uppercase block tech-font">Target Sub-Folder Hub</label>
                                 <label class="flex items-center gap-1 text-[11px] font-bold text-gray-400 cursor-pointer">
@@ -247,7 +255,7 @@
                             </div>
                             
                             <div class="flex items-center gap-2 mb-3">
-                                <input type="text" id="dest-folder-input" placeholder="Enter Folder Name (Ex: 101,102)" class="flex-1 bg-[#161a26] border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500 transition bg-input" onkeypress="handleKeyPress(event)">
+                                <input type="text" id="dest-folder-input" placeholder="RHZ: 101,102 | MUT: 757,758,759.8" class="flex-1 bg-[#161a26] border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500 transition bg-input" onkeypress="handleKeyPress(event)">
                                 <button onclick="toggleVoiceRecognition()" id="voice-mic-btn" class="bg-gray-800 hover:bg-gray-700 text-cyan-400 border border-gray-700 p-2.5 rounded-xl transition cursor-pointer" title="Listen Voice Command">
                                     <i class="fa-solid fa-microphone" id="mic-icon"></i>
                                 </button>
@@ -719,7 +727,7 @@
         function parseVoiceCommand(text) {
             const wordToNumMap = {
                 'zero': '0', 'one': '1', 'two': '2', 'three': '3', 'four': '4',
-                'five': '5', 'six': '6', 'seven': '7', 'eight': '8', 'nine': '9', 'comma': ','
+                'five': '5', 'six': '6', 'seven': '7', 'eight': '8', 'nine': '9', 'comma': ',', 'dot': '.', 'point': '.'
             };
             let tokens = text.split(/\s+/);
             let convertedStr = "";
@@ -984,22 +992,55 @@
         async function moveCurrentFile() {
             const folderInput = document.getElementById('dest-folder-input');
             const rawInput = folderInput.value.trim();
+            const selectedMode = document.getElementById('sorter-mode-select').value;
+
             if (!rawInput) return alert("Specify structural destination pathway parameters name!");
             if (currentIndex >= imageFiles.length) return;
-
-            const subFolders = rawInput.split(',').map(name => name.trim()).filter(name => name.length > 0);
-            if (subFolders.length === 0) return alert("Write directory parameters text correctly.");
 
             try {
                 const currentFileEntry = imageFiles[currentIndex];
                 const file = await currentFileEntry.getFile();
 
-                for (const subFolderName of subFolders) {
-                    const targetSubFolderHandle = await destHandle.getDirectoryHandle(subFolderName, { create: true });
-                    const newFileHandle = await targetSubFolderHandle.getFileHandle(currentFileEntry.name, { create: true });
-                    const writable = await newFileHandle.createWritable();
-                    await writable.write(file);
-                    await writable.close();
+                let createdPathLog = "";
+
+                if (selectedMode === 'MUT') {
+                    // MUT Mode Format: 757,758,759.8
+                    const parts = rawInput.split('.');
+                    if (parts.length < 2) {
+                        return alert("MUT mode requires dot separator format! (e.g., 757,758,759.8)");
+                    }
+                    const mainFolderList = parts[0].split(',').map(name => name.trim()).filter(name => name.length > 0);
+                    const nestedSubFolder = parts[1].trim();
+
+                    if (mainFolderList.length === 0 || !nestedSubFolder) {
+                        return alert("Invalid MUT input pattern! (Example format: 757,758,759.8)");
+                    }
+
+                    for (const parentName of mainFolderList) {
+                        const parentHandle = await destHandle.getDirectoryHandle(parentName, { create: true });
+                        const childHandle = await parentHandle.getDirectoryHandle(nestedSubFolder, { create: true });
+                        const newFileHandle = await childHandle.getFileHandle(currentFileEntry.name, { create: true });
+                        const writable = await newFileHandle.createWritable();
+                        await writable.write(file);
+                        await writable.close();
+                    }
+
+                    createdPathLog = `${mainFolderList.join(', ')} -> [${nestedSubFolder}]`;
+
+                } else {
+                    // RHZ Mode (Default Single/Multiple Folder Mode)
+                    const subFolders = rawInput.split(',').map(name => name.trim()).filter(name => name.length > 0);
+                    if (subFolders.length === 0) return alert("Write directory parameters text correctly.");
+
+                    for (const subFolderName of subFolders) {
+                        const targetSubFolderHandle = await destHandle.getDirectoryHandle(subFolderName, { create: true });
+                        const newFileHandle = await targetSubFolderHandle.getFileHandle(currentFileEntry.name, { create: true });
+                        const writable = await newFileHandle.createWritable();
+                        await writable.write(file);
+                        await writable.close();
+                    }
+
+                    createdPathLog = subFolders.join(', ');
                 }
 
                 try {
@@ -1015,14 +1056,14 @@
                 undoStack.push({
                     fileEntry: currentFileEntry,
                     arrayIndex: currentIndex,
-                    historyObject: { fileName: currentFileEntry.name, folders: subFolders.join(', ') },
+                    historyObject: { fileName: currentFileEntry.name, folders: createdPathLog },
                     fileData: file
                 });
 
                 const timeString = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
                 processHistory.unshift({
                     fileName: currentFileEntry.name,
-                    folders: subFolders.join(', '),
+                    folders: createdPathLog,
                     time: timeString
                 });
                 
