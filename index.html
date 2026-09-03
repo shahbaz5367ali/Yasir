@@ -976,18 +976,24 @@
             } catch (err) { console.warn(err); }
         }
 
-        async function readDirectoryRecursive(dirHandle, pathArr = [], parentSubFolderHandle = null) {
+        async function readDirectoryRecursive(dirHandle, pathArr = [], parentSubFolderHandle = null, isUnkMode = false) {
             for await (const entry of dirHandle.values()) {
                 if (entry.kind === 'file' && /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(entry.name)) {
-                    imageFiles.push({
-                        name: entry.name,
-                        relativePath: [...pathArr, entry.name].join('/'),
-                        fileEntry: entry,
-                        parentDirHandle: dirHandle,
-                        parentSubFolderHandle: parentSubFolderHandle || dirHandle
-                    });
+                    // UNK mode mein agar root depth yani pathArr.length === 1 hai tohi image accept karo (2nd level)
+                    if (!isUnkMode || pathArr.length === 1) {
+                        imageFiles.push({
+                            name: entry.name,
+                            relativePath: [...pathArr, entry.name].join('/'),
+                            fileEntry: entry,
+                            parentDirHandle: dirHandle,
+                            parentSubFolderHandle: parentSubFolderHandle || dirHandle
+                        });
+                    }
                 } else if (entry.kind === 'directory') {
-                    await readDirectoryRecursive(entry, [...pathArr, entry.name], parentSubFolderHandle || entry);
+                    // UNK mode mein 3rd level ya uske aage depth par mat jao (depth max 1 parent folder allowed)
+                    if (!isUnkMode || pathArr.length < 1) {
+                        await readDirectoryRecursive(entry, [...pathArr, entry.name], parentSubFolderHandle || entry, isUnkMode);
+                    }
                 }
             }
         }
@@ -1006,7 +1012,8 @@
                     if ((await destHandle.queryPermission(options)) !== 'granted') await destHandle.requestPermission(options);
                 }
 
-                await readDirectoryRecursive(sourceHandle);
+                const isUnkMode = (selectedMode === 'UNK');
+                await readDirectoryRecursive(sourceHandle, [], null, isUnkMode);
 
                 if (imageFiles.length === 0) return alert("No image matrices identified in mounted input channel folder path.");
 
