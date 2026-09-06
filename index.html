@@ -984,13 +984,16 @@
             for await (const entry of dirHandle.values()) {
                 if (entry.kind === 'file' && /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(entry.name)) {
                     if (selectedMode === 'MUT') {
-                        imageFiles.push({
-                            name: entry.name,
-                            relativePath: [...pathArr, entry.name].join('/'),
-                            fileEntry: entry,
-                            parentDirHandle: dirHandle,
-                            parentSubFolderHandle: parentSubFolderHandle || dirHandle
-                        });
+                        // SIRF selected folder ki direct images ko add karna hai (Sub-folders bypass)
+                        if (pathArr.length === 0) {
+                            imageFiles.push({
+                                name: entry.name,
+                                relativePath: entry.name,
+                                fileEntry: entry,
+                                parentDirHandle: dirHandle,
+                                parentSubFolderHandle: parentSubFolderHandle || dirHandle
+                            });
+                        }
                     } else if (isUnkMode) {
                         if (pathArr.length === 1) {
                             imageFiles.push({
@@ -1013,7 +1016,8 @@
                     }
                 } else if (entry.kind === 'directory') {
                     if (selectedMode === 'MUT') {
-                        await readDirectoryRecursive(entry, [...pathArr, entry.name], parentSubFolderHandle || entry, isUnkMode, selectedMode);
+                        // MUT Mode mein sub-folders ke andar jana SKIP (Ignore) karna hai
+                        continue;
                     } else if (isUnkMode) {
                         if (pathArr.length < 1) {
                             await readDirectoryRecursive(entry, [...pathArr, entry.name], parentSubFolderHandle || entry, isUnkMode, selectedMode);
