@@ -468,9 +468,10 @@
         function handleModeChange(selectedMode) {
             const destWrapper = document.getElementById('dest-folder-wrapper');
             
-            if (selectedMode === 'UNK') {
+            if (selectedMode === 'UNK' || selectedMode === 'MUT') {
                 destWrapper.style.display = 'none';
                 if (sourceHandle) {
+                    destHandle = sourceHandle;
                     enableStartButton();
                 }
             } else {
@@ -962,13 +963,16 @@
                     sourceHandle = handle;
                     document.getElementById('src-status').innerText = `Linked: ${handle.name}`;
                     document.getElementById('src-btn').className = "w-full border-2 border-cyan-400 bg-cyan-950/20 py-3 px-4 rounded-xl flex items-center justify-between text-left text-sm text-cyan-400 font-bold rgb-border-glow cursor-pointer bg-input";
+                    if (selectedMode === 'MUT') {
+                        destHandle = sourceHandle;
+                    }
                 } else {
                     destHandle = handle;
                     document.getElementById('dest-status').innerText = `Linked: ${handle.name}`;
                     document.getElementById('dest-btn').className = "w-full border-2 border-purple-400 bg-purple-950/20 py-3 px-4 rounded-xl flex items-center justify-between text-left text-sm text-purple-400 font-bold cursor-pointer bg-input";
                 }
 
-                if (selectedMode === 'UNK' && sourceHandle) {
+                if ((selectedMode === 'UNK' || selectedMode === 'MUT') && sourceHandle) {
                     enableStartButton();
                 } else if (sourceHandle && destHandle) {
                     enableStartButton();
@@ -980,18 +984,14 @@
             for await (const entry of dirHandle.values()) {
                 if (entry.kind === 'file' && /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(entry.name)) {
                     if (selectedMode === 'MUT') {
-                        // MUT Mode: Main Folder -> Sub Folder (pathArr.length === 2) ki images eyein, 3rd level ki na ayein
-                        if (pathArr.length === 2) {
-                            imageFiles.push({
-                                name: entry.name,
-                                relativePath: [...pathArr, entry.name].join('/'),
-                                fileEntry: entry,
-                                parentDirHandle: dirHandle,
-                                parentSubFolderHandle: parentSubFolderHandle || dirHandle
-                            });
-                        }
+                        imageFiles.push({
+                            name: entry.name,
+                            relativePath: [...pathArr, entry.name].join('/'),
+                            fileEntry: entry,
+                            parentDirHandle: dirHandle,
+                            parentSubFolderHandle: parentSubFolderHandle || dirHandle
+                        });
                     } else if (isUnkMode) {
-                        // UNK mode mein depth pathArr.length === 1 wali image accept karo
                         if (pathArr.length === 1) {
                             imageFiles.push({
                                 name: entry.name,
@@ -1013,10 +1013,7 @@
                     }
                 } else if (entry.kind === 'directory') {
                     if (selectedMode === 'MUT') {
-                        // MUT Mode: Sirf 2 levels tak traverse karo (Root -> Level 1 -> Level 2), Level 3 aur us se deep ignore karo
-                        if (pathArr.length < 2) {
-                            await readDirectoryRecursive(entry, [...pathArr, entry.name], parentSubFolderHandle || entry, isUnkMode, selectedMode);
-                        }
+                        await readDirectoryRecursive(entry, [...pathArr, entry.name], parentSubFolderHandle || entry, isUnkMode, selectedMode);
                     } else if (isUnkMode) {
                         if (pathArr.length < 1) {
                             await readDirectoryRecursive(entry, [...pathArr, entry.name], parentSubFolderHandle || entry, isUnkMode, selectedMode);
@@ -1038,7 +1035,11 @@
                 
                 if ((await sourceHandle.queryPermission(options)) !== 'granted') await sourceHandle.requestPermission(options);
                 
-                if (selectedMode !== 'UNK' && destHandle) {
+                if (selectedMode === 'MUT') {
+                    destHandle = sourceHandle;
+                }
+
+                if (selectedMode !== 'UNK' && selectedMode !== 'MUT' && destHandle) {
                     if ((await destHandle.queryPermission(options)) !== 'granted') await destHandle.requestPermission(options);
                 }
 
@@ -1047,7 +1048,7 @@
 
                 if (imageFiles.length === 0) return alert("No image matrices identified in mounted input channel folder path.");
 
-                // Natural Numeric Sorting: Folders/Files 1, 2, 3... 10 line-wise sort hongay
+                // Natural Numeric Sorting
                 imageFiles.sort((a, b) => {
                     const pathA = a.relativePath || a.name;
                     const pathB = b.relativePath || b.name;
@@ -1132,7 +1133,7 @@
                     }
 
                     for (const parentName of mainFolderList) {
-                        const parentHandle = await destHandle.getDirectoryHandle(parentName, { create: true });
+                        const parentHandle = await sourceHandle.getDirectoryHandle(parentName, { create: true });
                         const childHandle = await parentHandle.getDirectoryHandle(nestedSubFolder, { create: true });
                         const newFileHandle = await childHandle.getFileHandle(currentItem.name, { create: true });
                         const writable = await newFileHandle.createWritable();
