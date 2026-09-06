@@ -976,11 +976,33 @@
             } catch (err) { console.warn(err); }
         }
 
-        async function readDirectoryRecursive(dirHandle, pathArr = [], parentSubFolderHandle = null, isUnkMode = false) {
+        async function readDirectoryRecursive(dirHandle, pathArr = [], parentSubFolderHandle = null, isUnkMode = false, selectedMode = 'RHZ') {
             for await (const entry of dirHandle.values()) {
                 if (entry.kind === 'file' && /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(entry.name)) {
-                    // UNK mode mein agar root depth yani pathArr.length === 1 hai tohi image accept karo (2nd level)
-                    if (!isUnkMode || pathArr.length === 1) {
+                    if (selectedMode === 'MUT') {
+                        // MUT Mode: Main Folder -> Sub Folder (pathArr.length === 2) ki images eyein, 3rd level ki na ayein
+                        if (pathArr.length === 2) {
+                            imageFiles.push({
+                                name: entry.name,
+                                relativePath: [...pathArr, entry.name].join('/'),
+                                fileEntry: entry,
+                                parentDirHandle: dirHandle,
+                                parentSubFolderHandle: parentSubFolderHandle || dirHandle
+                            });
+                        }
+                    } else if (isUnkMode) {
+                        // UNK mode mein depth pathArr.length === 1 wali image accept karo
+                        if (pathArr.length === 1) {
+                            imageFiles.push({
+                                name: entry.name,
+                                relativePath: [...pathArr, entry.name].join('/'),
+                                fileEntry: entry,
+                                parentDirHandle: dirHandle,
+                                parentSubFolderHandle: parentSubFolderHandle || dirHandle
+                            });
+                        }
+                    } else {
+                        // Standard RHZ Mode
                         imageFiles.push({
                             name: entry.name,
                             relativePath: [...pathArr, entry.name].join('/'),
@@ -990,9 +1012,17 @@
                         });
                     }
                 } else if (entry.kind === 'directory') {
-                    // UNK mode mein 3rd level ya uske aage depth par mat jao (depth max 1 parent folder allowed)
-                    if (!isUnkMode || pathArr.length < 1) {
-                        await readDirectoryRecursive(entry, [...pathArr, entry.name], parentSubFolderHandle || entry, isUnkMode);
+                    if (selectedMode === 'MUT') {
+                        // MUT Mode: Sirf 2 levels tak traverse karo (Root -> Level 1 -> Level 2), Level 3 aur us se deep ignore karo
+                        if (pathArr.length < 2) {
+                            await readDirectoryRecursive(entry, [...pathArr, entry.name], parentSubFolderHandle || entry, isUnkMode, selectedMode);
+                        }
+                    } else if (isUnkMode) {
+                        if (pathArr.length < 1) {
+                            await readDirectoryRecursive(entry, [...pathArr, entry.name], parentSubFolderHandle || entry, isUnkMode, selectedMode);
+                        }
+                    } else {
+                        await readDirectoryRecursive(entry, [...pathArr, entry.name], parentSubFolderHandle || entry, isUnkMode, selectedMode);
                     }
                 }
             }
@@ -1013,7 +1043,7 @@
                 }
 
                 const isUnkMode = (selectedMode === 'UNK');
-                await readDirectoryRecursive(sourceHandle, [], null, isUnkMode);
+                await readDirectoryRecursive(sourceHandle, [], null, isUnkMode, selectedMode);
 
                 if (imageFiles.length === 0) return alert("No image matrices identified in mounted input channel folder path.");
 
