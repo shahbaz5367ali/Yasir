@@ -259,7 +259,7 @@
                                     <i class="fa-solid fa-microphone" id="mic-icon"></i>
                                 </button>
                             </div>
-                            <div id="voice-status-label" class="text-[10px] text-gray-500 font-semibold mb-2 px-1">â€¢ Mic Status: Standby.</div>
+                            <div id="voice-status-label" class="text-[10px] text-gray-500 font-semibold mb-2 px-1">• Mic Status: Standby.</div>
 
                             <button onclick="moveCurrentFile()" class="w-full rgb-gradient-btn text-black text-xs font-black py-2.5 rounded-xl shadow flex items-center justify-center gap-2 tracking-widest uppercase transition cursor-pointer mb-2">Process & Sort File <i class="fa-solid fa-arrow-right"></i></button>
                             <button onclick="triggerUndoAction()" id="undo-action-btn" class="w-full bg-amber-600 hover:bg-amber-700 text-white text-xs font-black py-2.5 rounded-xl shadow flex items-center justify-center gap-2 tracking-widest uppercase transition cursor-pointer">Undo Last Move <i class="fa-solid fa-rotate-left"></i></button>
@@ -741,7 +741,7 @@
                     parseVoiceCommand(voiceText);
                 };
                 recognition.onerror = function() {
-                    document.getElementById('voice-status-label').innerText = "â€¢ Mic Status: Tracking Error.";
+                    document.getElementById('voice-status-label').innerText = "• Mic Status: Tracking Error.";
                 };
                 recognition.onend = function() {
                     if (isListening) recognition.start();
@@ -758,12 +758,12 @@
                 isListening = true;
                 recognition.start();
                 micBtn.className = "bg-red-600 hover:bg-red-700 text-white border border-red-500 p-2.5 rounded-xl transition cursor-pointer animate-pulse";
-                statusLabel.innerText = "â€¢ Mic Status: Listening Stream Operations...";
+                statusLabel.innerText = "• Mic Status: Listening Stream Operations...";
             } else {
                 isListening = false;
                 recognition.stop();
                 micBtn.className = "bg-gray-800 hover:bg-gray-700 text-cyan-400 border border-gray-700 p-2.5 rounded-xl transition cursor-pointer";
-                statusLabel.innerText = "â€¢ Mic Status: Standby Control Channel.";
+                statusLabel.innerText = "• Mic Status: Standby Control Channel.";
             }
         }
 
@@ -1211,47 +1211,7 @@
                     folderInput.value = "";
                 }
 
-                imageFiles.splice(currentIndex, 1);
-
-                // Wait exactly 2 minutes before displaying the next image.
-                // All image-processing/navigation controls remain locked during the wait.
-                const delayMs = 2 * 60 * 1000;
-                const controlButtons = document.querySelectorAll(
-                    '#viewport-container button, #state-viewer button, #dest-folder-input, #voice-mic-btn'
-                );
-                controlButtons.forEach(el => {
-                    el.disabled = true;
-                    el.dataset.twoMinuteLock = "true";
-                });
-
-                const progressTextEl = document.getElementById('progress-text');
-
-                await new Promise(resolve => {
-                    const endTime = Date.now() + delayMs;
-                    const updateWait = () => {
-                        const remaining = Math.max(0, endTime - Date.now());
-                        const totalSeconds = Math.ceil(remaining / 1000);
-                        if (progressTextEl) {
-                            const mins = Math.floor(totalSeconds / 60);
-                            const secs = totalSeconds % 60;
-                            progressTextEl.innerText = `NEXT IMAGE IN ${mins}:${String(secs).padStart(2, '0')}`;
-                        }
-                        if (remaining <= 0) {
-                            clearInterval(timer);
-                            resolve();
-                        }
-                    };
-                    updateWait();
-                    const timer = setInterval(updateWait, 1000);
-                });
-
-                controlButtons.forEach(el => {
-                    if (el.dataset.twoMinuteLock === "true") {
-                        el.disabled = false;
-                        delete el.dataset.twoMinuteLock;
-                    }
-                });
-
+                imageFiles.splice(currentIndex, 1); 
                 displayCurrentFile();
             } catch (err) { 
                 console.error(err);
