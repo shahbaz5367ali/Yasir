@@ -259,7 +259,7 @@
                                     <i class="fa-solid fa-microphone" id="mic-icon"></i>
                                 </button>
                             </div>
-                            <div id="voice-status-label" class="text-[10px] text-gray-500 font-semibold mb-2 px-1">• Mic Status: Standby.</div>
+                            <div id="voice-status-label" class="text-[10px] text-gray-500 font-semibold mb-2 px-1">â€¢ Mic Status: Standby.</div>
 
                             <button onclick="moveCurrentFile()" class="w-full rgb-gradient-btn text-black text-xs font-black py-2.5 rounded-xl shadow flex items-center justify-center gap-2 tracking-widest uppercase transition cursor-pointer mb-2">Process & Sort File <i class="fa-solid fa-arrow-right"></i></button>
                             <button onclick="triggerUndoAction()" id="undo-action-btn" class="w-full bg-amber-600 hover:bg-amber-700 text-white text-xs font-black py-2.5 rounded-xl shadow flex items-center justify-center gap-2 tracking-widest uppercase transition cursor-pointer">Undo Last Move <i class="fa-solid fa-rotate-left"></i></button>
@@ -741,7 +741,7 @@
                     parseVoiceCommand(voiceText);
                 };
                 recognition.onerror = function() {
-                    document.getElementById('voice-status-label').innerText = "• Mic Status: Tracking Error.";
+                    document.getElementById('voice-status-label').innerText = "â€¢ Mic Status: Tracking Error.";
                 };
                 recognition.onend = function() {
                     if (isListening) recognition.start();
@@ -758,12 +758,12 @@
                 isListening = true;
                 recognition.start();
                 micBtn.className = "bg-red-600 hover:bg-red-700 text-white border border-red-500 p-2.5 rounded-xl transition cursor-pointer animate-pulse";
-                statusLabel.innerText = "• Mic Status: Listening Stream Operations...";
+                statusLabel.innerText = "â€¢ Mic Status: Listening Stream Operations...";
             } else {
                 isListening = false;
                 recognition.stop();
                 micBtn.className = "bg-gray-800 hover:bg-gray-700 text-cyan-400 border border-gray-700 p-2.5 rounded-xl transition cursor-pointer";
-                statusLabel.innerText = "• Mic Status: Standby Control Channel.";
+                statusLabel.innerText = "â€¢ Mic Status: Standby Control Channel.";
             }
         }
 
@@ -984,7 +984,17 @@
             for await (const entry of dirHandle.values()) {
                 if (entry.kind === 'file' && /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(entry.name)) {
                     if (selectedMode === 'MUT') {
-                        // SIRF selected folder ki direct images ko add karna hai (Sub-folders bypass)
+                        if (pathArr.length === 0) {
+                            imageFiles.push({
+                                name: entry.name,
+                                relativePath: entry.name,
+                                fileEntry: entry,
+                                parentDirHandle: dirHandle,
+                                parentSubFolderHandle: parentSubFolderHandle || dirHandle
+                            });
+                        }
+                    } else if (selectedMode === 'RHZ') {
+                        // RHZ Mode: Sirf main folder ki direct images show hongi, sub-folder ki nahi
                         if (pathArr.length === 0) {
                             imageFiles.push({
                                 name: entry.name,
@@ -1005,7 +1015,6 @@
                             });
                         }
                     } else {
-                        // Standard RHZ Mode
                         imageFiles.push({
                             name: entry.name,
                             relativePath: [...pathArr, entry.name].join('/'),
@@ -1016,7 +1025,9 @@
                     }
                 } else if (entry.kind === 'directory') {
                     if (selectedMode === 'MUT') {
-                        // MUT Mode mein sub-folders ke andar jana SKIP (Ignore) karna hai
+                        continue;
+                    } else if (selectedMode === 'RHZ') {
+                        // RHZ Mode mein sub-folders ke andar recursion nahi karni taake unki images na aayein
                         continue;
                     } else if (isUnkMode) {
                         if (pathArr.length < 1) {
